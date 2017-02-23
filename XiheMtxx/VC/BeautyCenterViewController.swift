@@ -8,7 +8,7 @@
 
 import UIKit
 
-class MainViewController: BaseViewController {
+class BeautyCenterViewController: BaseViewController {
     
     var originImage: UIImage!
     
@@ -66,6 +66,8 @@ class MainViewController: BaseViewController {
         _imageScrollView.backgroundColor = UIColor.colorWithHexString(hex: "#2c2e30")
         _imageScrollView.alwaysBounceVertical = true
         _imageScrollView.alwaysBounceHorizontal = true
+        _imageScrollView.maximumZoomScale = 4.0
+        _imageScrollView.delegate = self
         return _imageScrollView
     }()
     
@@ -110,10 +112,7 @@ class MainViewController: BaseViewController {
         
         self.automaticallyAdjustsScrollViewInsets = false
         
-        self.view.backgroundColor = UIColor.white
-        // 返回按钮
-        self.navigationItem.leftItemsSupplementBackButton = true
-        self.navigationItem.leftBarButtonItem = UIBarButtonItem(customView: self.backButton)
+        self.view.backgroundColor = UIColor.colorWithHexString(hex: "#2c2e30")
         // 保存按钮
         self.navigationItem.rightBarButtonItem = UIBarButtonItem(customView: self.saveButton)
         // 标题View - 撤销，恢复按钮
@@ -181,9 +180,24 @@ class MainViewController: BaseViewController {
     
     // 编辑图片
     func editImage() -> Void {
-        let editImageVC = EditImageViewController()
-        self.present(editImageVC, animated: true) {
-            
+        UIView.animate(withDuration: 0.2, animations: { 
+            self.toolBar.frame = self.toolBar.frame.offsetBy(dx: 0, dy: self.toolBar.frame.size.height)
+        }) { (finished) in
+            if finished {
+                let editImageVC = EditImageViewController()
+                editImageVC.image = self.originImage
+                editImageVC.modalPresentationStyle = .fullScreen
+                editImageVC.transitioningDelegate = self
+                self.present(editImageVC, animated: true) {
+                    self.toolBar.frame = self.toolBar.frame.offsetBy(dx: 0, dy: -self.toolBar.frame.size.height)
+                }
+            }
         }
+    }
+}
+
+extension BeautyCenterViewController: UIScrollViewDelegate {
+    func viewForZooming(in scrollView: UIScrollView) -> UIView? {
+        return self.imageView
     }
 }

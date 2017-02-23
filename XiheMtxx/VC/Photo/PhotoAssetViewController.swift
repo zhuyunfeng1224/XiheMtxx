@@ -89,7 +89,7 @@ extension PhotoAssetViewController: UICollectionViewDataSource, UICollectionView
             option.resizeMode = .exact
             option.isNetworkAccessAllowed = true
             PHCachingImageManager.default().requestImageData(for: asset, options: option, resultHandler: { (data, str, orientation, info) in
-                let mainVC = MainViewController()
+                let mainVC = BeautyCenterViewController()
                 let image = UIImage(data: data!)
                 mainVC.originImage = image
                 self.navigationController?.pushViewController(mainVC, animated: true)

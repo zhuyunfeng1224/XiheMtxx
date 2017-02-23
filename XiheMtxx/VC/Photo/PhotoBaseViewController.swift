@@ -30,6 +30,19 @@ class PhotoBaseViewController: UIViewController {
         super.viewDidLoad()
         self.navigationItem.rightBarButtonItem = UIBarButtonItem(customView: self.cameraButton)
     }
+    
+    override func viewWillAppear(_ animated: Bool) {
+        super.viewWillAppear(animated)
+        self.navigationController?.navigationBar.barTintColor = UIColor.white
+        self.navigationController?.navigationBar.backgroundColor = UIColor.white
+        self.navigationController?.navigationBar.tintColor = UIColor.colorWithHexString(hex: "#2c2e30")
+        
+        self.navigationController?.navigationBar.titleTextAttributes = [NSFontAttributeName: UIFont.systemFont(ofSize: 17), NSForegroundColorAttributeName: UIColor.colorWithHexString(hex: "#333333")]
+        self.navigationController?.navigationBar.backIndicatorImage = UIImage(named:"btn_back_arrow_25x25_")
+        self.navigationController?.navigationBar.backIndicatorTransitionMaskImage = UIImage(named:"btn_back_arrow_25x25_")
+        UIBarButtonItem.appearance().setTitleTextAttributes([NSFontAttributeName: UIFont.systemFont(ofSize: 13), NSForegroundColorAttributeName: UIColor.colorWithHexString(hex: "#333333")], for: .normal)
+        UIBarButtonItem.appearance().setBackButtonTitlePositionAdjustment(UIOffset(horizontal: 3, vertical: -3), for: .default)
+    }
 
     override func didReceiveMemoryWarning() {
         super.didReceiveMemoryWarning()

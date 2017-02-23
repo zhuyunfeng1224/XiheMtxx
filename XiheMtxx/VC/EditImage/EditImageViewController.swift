@@ -8,11 +8,14 @@
 
 import UIKit
 
-class EditImageViewController: UIViewController {
+class EditImageViewController: BaseViewController {
+    
+    var image: UIImage?
+    let imageAndScreenHeightRatio: CGFloat = 0.7
     
     // 图片
     lazy var imageView: UIImageView = {
-        let _imageView = UIImageView(frame: CGRect(x: 0, y: 0, width: UIScreen.main.bounds.size.width, height: UIScreen.main.bounds.size.height * 0.65))
+        let _imageView = UIImageView(frame: CGRect(x: 0, y: 0, width: UIScreen.main.bounds.size.width, height: UIScreen.main.bounds.size.height * self.imageAndScreenHeightRatio))
         _imageView.contentMode = .scaleAspectFit
         _imageView.backgroundColor = UIColor.colorWithHexString(hex: "#2c2e30")
         return _imageView
@@ -20,8 +23,16 @@ class EditImageViewController: UIViewController {
     
     // 遮罩层
     lazy var grayView: GrayView = {
-        let _grayView = GrayView(frame: CGRect(x: 0, y: 0, width: UIScreen.main.bounds.size.width, height: UIScreen.main.bounds.size.height * 0.65))
+        let _grayView = GrayView(frame: CGRect(x: 0, y: 0, width: UIScreen.main.bounds.size.width, height: UIScreen.main.bounds.size.height * self.imageAndScreenHeightRatio))
         return _grayView
+    }()
+    
+    // 底部背景View
+    lazy var bottomView: UIView = {
+        let _bottomView = UIView(frame: CGRect.zero)
+        _bottomView.backgroundColor = UIColor.white.withAlphaComponent(0.95)
+        _bottomView.translatesAutoresizingMaskIntoConstraints = false
+        return _bottomView
     }()
     
     // 操作背景View
@@ -60,21 +71,17 @@ class EditImageViewController: UIViewController {
         return _cutButton
     }()
     
-    
     // menuBar
     lazy var menuBar: UIView = {
         let _menuBar = UIView(frame: CGRect.zero)
         _menuBar.backgroundColor = UIColor.white
         _menuBar.translatesAutoresizingMaskIntoConstraints = false
         
-        let shadowView = UIView(frame: CGRect.zero)
-        shadowView.backgroundColor = UIColor.lightGray.withAlphaComponent(0.3)
-        shadowView.layer.masksToBounds = false
-        shadowView.layer.shadowColor = UIColor.white.cgColor
-        shadowView.layer.shadowOffset = CGSize(width: 0, height: 0)
-        shadowView.layer.shadowRadius = 0.5
-        shadowView.layer.shadowOpacity = 0.8
-        _menuBar.addSubview(shadowView)
+        _menuBar.layer.masksToBounds = false
+        _menuBar.layer.shadowColor = UIColor.lightGray.withAlphaComponent(0.3).cgColor
+        _menuBar.layer.shadowOffset = CGSize(width: 0, height: -0.5)
+        _menuBar.layer.shadowRadius = 0.5
+        _menuBar.layer.shadowOpacity = 0.8
         
         return _menuBar
     }()
@@ -109,44 +116,66 @@ class EditImageViewController: UIViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
         self.view.backgroundColor = UIColor.colorWithHexString(hex: "#2c2e30")
+        self.imageView.image = self.image
         self.view.addSubview(self.imageView)
         self.imageView.addSubview(self.grayView)
         
-        self.view.addSubview(self.operationView)
+        self.view.addSubview(self.bottomView)
+        self.bottomView.addSubview(self.operationView)
         self.operationView.addSubview(self.resetButton)
         self.operationView.addSubview(self.cutButton)
         self.operationView.addSubview(self.scaleSelectionView)
         
-        self.view.addSubview(self.menuBar)
+        self.bottomView.addSubview(self.menuBar)
         self.menuBar.addSubview(self.cancelButton)
         self.menuBar.addSubview(self.confirmButton)
+        
+        self.view.setNeedsUpdateConstraints()
+    }
+    
+    override func viewWillAppear(_ animated: Bool) {
+        super.viewWillAppear(animated)
+        
+        self.bottomView.frame = self.operationView.frame.offsetBy(dx: 0, dy: UIScreen.main.bounds.size.height * (1.0-self.imageAndScreenHeightRatio))
+        UIView.animate(withDuration: 0.3, animations: {
+            self.bottomView.frame = self.operationView.frame.offsetBy(dx: 0, dy: -UIScreen.main.bounds.size.height * (1.0-self.imageAndScreenHeightRatio))
+        })
     }
     
     override func updateViewConstraints() {
         super.updateViewConstraints()
-        // operationView
-        let operationHConstraints = NSLayoutConstraint.constraints(withVisualFormat: "H:|-0-[operationView]-0-|", options: NSLayoutFormatOptions(rawValue:0), metrics: nil, views: ["operationView": operationView])
-        let operationVConstraints = NSLayoutConstraint.constraints(withVisualFormat: "V:|-y-[operationView]-bottom-|", options: NSLayoutFormatOptions(rawValue:0), metrics: ["y": UIScreen.main.bounds.size.height * 0.65, "bottom": 50], views: ["operationView": operationView])
-        self.view.addConstraints(operationHConstraints)
-        self.view.addConstraints(operationVConstraints)
+        
+        // bottomView
+        let bottomViewHConstraints = NSLayoutConstraint.constraints(withVisualFormat: "H:|-0-[bottomView]-0-|", options: NSLayoutFormatOptions(rawValue:0), metrics: nil, views: ["bottomView": self.bottomView])
+        let bottomViewVConstraints = NSLayoutConstraint.constraints(withVisualFormat: "V:|-y-[bottomView]-0-|", options: NSLayoutFormatOptions(rawValue:0), metrics: ["y": UIScreen.main.bounds.size.height * self.imageAndScreenHeightRatio], views: ["bottomView": self.bottomView])
+        
+        self.view.addConstraints(bottomViewHConstraints)
+        self.view.addConstraints(bottomViewVConstraints)
         
         // menuBar
         let menuBarHConstraints = NSLayoutConstraint.constraints(withVisualFormat: "H:|-0-[menuBar]-0-|", options: NSLayoutFormatOptions(rawValue:0), metrics: nil, views: ["menuBar": self.menuBar])
-        let menuBarVConstraints = NSLayoutConstraint.constraints(withVisualFormat: "V:[operationView]-0-[menuBar]-0-|", options: NSLayoutFormatOptions(rawValue:0), metrics: nil, views: ["operationView": operationView, "menuBar": self.menuBar])
+        let menuBarVConstraints = NSLayoutConstraint.constraints(withVisualFormat: "V:[menuBar(==50)]-0-|", options: NSLayoutFormatOptions(rawValue:0), metrics: nil, views: ["menuBar": self.menuBar])
         self.view.addConstraints(menuBarHConstraints)
         self.view.addConstraints(menuBarVConstraints)
         
+        // operationView
+        let operationHConstraints = NSLayoutConstraint.constraints(withVisualFormat: "H:|-0-[operationView]-0-|", options: NSLayoutFormatOptions(rawValue:0), metrics: nil, views: ["operationView": self.operationView])
+        let operationVConstraints = NSLayoutConstraint.constraints(withVisualFormat: "V:|-0-[operationView]-0-[menuBar]", options: NSLayoutFormatOptions(rawValue:0), metrics:nil, views: ["operationView": self.operationView, "menuBar": self.menuBar])
+        
+        self.view.addConstraints(operationHConstraints)
+        self.view.addConstraints(operationVConstraints)
+        
         // resetButton and cutButton
         let operationButtonsHContraints = NSLayoutConstraint.constraints(withVisualFormat: "H:|-10-[resetButton(==60)]->=0-[cutButton(==80)]-10-|", options: NSLayoutFormatOptions(rawValue:0), metrics: nil, views: ["resetButton": self.resetButton, "cutButton": self.cutButton])
-        let operationResetButtonVConstraints = NSLayoutConstraint.constraints(withVisualFormat: "V:[resetButton(==30)]-18-|", options: NSLayoutFormatOptions(rawValue:0), metrics: nil, views: ["resetButton": self.resetButton])
-        let operationCutButtonVConstraints = NSLayoutConstraint.constraints(withVisualFormat: "V:[cutButton(==30)]-18-|", options: NSLayoutFormatOptions(rawValue:0), metrics: nil, views: ["cutButton": self.cutButton])
+        let operationResetButtonVConstraints = NSLayoutConstraint.constraints(withVisualFormat: "V:[resetButton(==30)]-10-|", options: NSLayoutFormatOptions(rawValue:0), metrics: nil, views: ["resetButton": self.resetButton])
+        let operationCutButtonVConstraints = NSLayoutConstraint.constraints(withVisualFormat: "V:[cutButton(==30)]-10-|", options: NSLayoutFormatOptions(rawValue:0), metrics: nil, views: ["cutButton": self.cutButton])
         self.operationView.addConstraints(operationButtonsHContraints)
         self.operationView.addConstraints(operationResetButtonVConstraints)
         self.operationView.addConstraints(operationCutButtonVConstraints)
         
         // selectionView
         let selectionViewHConstraints = NSLayoutConstraint.constraints(withVisualFormat: "H:|-0-[selectionView]-0-|", options: NSLayoutFormatOptions(rawValue:0), metrics: nil, views: ["selectionView": self.scaleSelectionView])
-        let selectionViewVConstraints = NSLayoutConstraint.constraints(withVisualFormat: "V:|-15-[selectionView]-15-[resetButton]", options: NSLayoutFormatOptions(rawValue:0), metrics: nil, views: ["selectionView": self.scaleSelectionView, "resetButton": self.resetButton])
+        let selectionViewVConstraints = NSLayoutConstraint.constraints(withVisualFormat: "V:|-10-[selectionView]-10-[resetButton]", options: NSLayoutFormatOptions(rawValue:0), metrics: nil, views: ["selectionView": self.scaleSelectionView, "resetButton": self.resetButton])
         self.operationView.addConstraints(selectionViewHConstraints)
         self.operationView.addConstraints(selectionViewVConstraints)
         

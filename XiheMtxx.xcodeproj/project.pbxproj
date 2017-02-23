@@ -16,21 +16,25 @@
 		5FF90D9D1E5DA17400ABF726 /* XiheMtxxUITests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5FF90D9C1E5DA17400ABF726 /* XiheMtxxUITests.swift */; };
 		5FF90DBF1E5DA1CA00ABF726 /* BaseViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5FF90DAB1E5DA1CA00ABF726 /* BaseViewController.swift */; };
 		5FF90DC01E5DA1CA00ABF726 /* GrayView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5FF90DAD1E5DA1CA00ABF726 /* GrayView.swift */; };
-		5FF90DC11E5DA1CA00ABF726 /* EditImageViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5FF90DAF1E5DA1CA00ABF726 /* EditImageViewController.swift */; };
-		5FF90DC21E5DA1CA00ABF726 /* ScaleSelectionCollectionViewCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5FF90DB01E5DA1CA00ABF726 /* ScaleSelectionCollectionViewCell.swift */; };
-		5FF90DC31E5DA1CA00ABF726 /* ScaleSelectionView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5FF90DB11E5DA1CA00ABF726 /* ScaleSelectionView.swift */; };
 		5FF90DC41E5DA1CA00ABF726 /* UIColor+Extension.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5FF90DB31E5DA1CA00ABF726 /* UIColor+Extension.swift */; };
 		5FF90DC51E5DA1CA00ABF726 /* MainNavigationViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5FF90DB41E5DA1CA00ABF726 /* MainNavigationViewController.swift */; };
-		5FF90DC61E5DA1CA00ABF726 /* MainViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5FF90DB51E5DA1CA00ABF726 /* MainViewController.swift */; };
-		5FF90DC71E5DA1CA00ABF726 /* PhotoAlbumTableViewCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5FF90DB71E5DA1CA00ABF726 /* PhotoAlbumTableViewCell.swift */; };
-		5FF90DC81E5DA1CA00ABF726 /* PhotoAlbumViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5FF90DB81E5DA1CA00ABF726 /* PhotoAlbumViewController.swift */; };
-		5FF90DC91E5DA1CA00ABF726 /* PhotoAssetCollectionViewCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5FF90DB91E5DA1CA00ABF726 /* PhotoAssetCollectionViewCell.swift */; };
-		5FF90DCA1E5DA1CA00ABF726 /* PhotoAssetViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5FF90DBA1E5DA1CA00ABF726 /* PhotoAssetViewController.swift */; };
-		5FF90DCB1E5DA1CA00ABF726 /* PhotoBaseViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5FF90DBB1E5DA1CA00ABF726 /* PhotoBaseViewController.swift */; };
-		5FF90DCC1E5DA1CA00ABF726 /* ToolBarItem.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5FF90DBC1E5DA1CA00ABF726 /* ToolBarItem.swift */; };
+		5FF90DC61E5DA1CA00ABF726 /* BeautyCenterViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5FF90DB51E5DA1CA00ABF726 /* BeautyCenterViewController.swift */; };
 		5FF90DCD1E5DA1CA00ABF726 /* ToolBarView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5FF90DBD1E5DA1CA00ABF726 /* ToolBarView.swift */; };
 		5FF90DCE1E5DA1CA00ABF726 /* VerticalButton.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5FF90DBE1E5DA1CA00ABF726 /* VerticalButton.swift */; };
 		5FF90DD11E5DA21900ABF726 /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 5FF90DD01E5DA21900ABF726 /* Foundation.framework */; };
+		5FF90DD31E5E821B00ABF726 /* Photos.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 5FF90DD21E5E821B00ABF726 /* Photos.framework */; };
+		5FF90DE01E5E88FA00ABF726 /* EditImageViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5FF90DD71E5E88F900ABF726 /* EditImageViewController.swift */; };
+		5FF90DE11E5E88FA00ABF726 /* ScaleSelectionCollectionViewCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5FF90DD81E5E88F900ABF726 /* ScaleSelectionCollectionViewCell.swift */; };
+		5FF90DE21E5E88FA00ABF726 /* ScaleSelectionView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5FF90DD91E5E88F900ABF726 /* ScaleSelectionView.swift */; };
+		5FF90DE31E5E88FA00ABF726 /* PhotoAlbumTableViewCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5FF90DDB1E5E88F900ABF726 /* PhotoAlbumTableViewCell.swift */; };
+		5FF90DE41E5E88FA00ABF726 /* PhotoAlbumViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5FF90DDC1E5E88F900ABF726 /* PhotoAlbumViewController.swift */; };
+		5FF90DE51E5E88FA00ABF726 /* PhotoAssetCollectionViewCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5FF90DDD1E5E88F900ABF726 /* PhotoAssetCollectionViewCell.swift */; };
+		5FF90DE61E5E88FA00ABF726 /* PhotoAssetViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5FF90DDE1E5E88F900ABF726 /* PhotoAssetViewController.swift */; };
+		5FF90DE71E5E88FA00ABF726 /* PhotoBaseViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5FF90DDF1E5E88F900ABF726 /* PhotoBaseViewController.swift */; };
+		5FF90DE91E5E895500ABF726 /* ToolBarItem.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5FF90DE81E5E895500ABF726 /* ToolBarItem.swift */; };
+		5FF90DED1E5EBB5700ABF726 /* PresentCustomTransitionAnimator.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5FF90DEC1E5EBB5700ABF726 /* PresentCustomTransitionAnimator.swift */; };
+		5FF90DEF1E5EE78700ABF726 /* UserResizableView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5FF90DEE1E5EE78700ABF726 /* UserResizableView.swift */; };
+		5FF90DF11E5EE88900ABF726 /* GridBorderView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5FF90DF01E5EE88900ABF726 /* GridBorderView.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -66,21 +70,26 @@
 		5FF90D9E1E5DA17400ABF726 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		5FF90DAB1E5DA1CA00ABF726 /* BaseViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = BaseViewController.swift; sourceTree = "<group>"; };
 		5FF90DAD1E5DA1CA00ABF726 /* GrayView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = GrayView.swift; sourceTree = "<group>"; };
-		5FF90DAF1E5DA1CA00ABF726 /* EditImageViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = EditImageViewController.swift; sourceTree = "<group>"; };
-		5FF90DB01E5DA1CA00ABF726 /* ScaleSelectionCollectionViewCell.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ScaleSelectionCollectionViewCell.swift; sourceTree = "<group>"; };
-		5FF90DB11E5DA1CA00ABF726 /* ScaleSelectionView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ScaleSelectionView.swift; sourceTree = "<group>"; };
 		5FF90DB31E5DA1CA00ABF726 /* UIColor+Extension.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "UIColor+Extension.swift"; sourceTree = "<group>"; };
 		5FF90DB41E5DA1CA00ABF726 /* MainNavigationViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = MainNavigationViewController.swift; sourceTree = "<group>"; };
-		5FF90DB51E5DA1CA00ABF726 /* MainViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = MainViewController.swift; sourceTree = "<group>"; };
-		5FF90DB71E5DA1CA00ABF726 /* PhotoAlbumTableViewCell.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = PhotoAlbumTableViewCell.swift; sourceTree = "<group>"; };
-		5FF90DB81E5DA1CA00ABF726 /* PhotoAlbumViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = PhotoAlbumViewController.swift; sourceTree = "<group>"; };
-		5FF90DB91E5DA1CA00ABF726 /* PhotoAssetCollectionViewCell.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = PhotoAssetCollectionViewCell.swift; sourceTree = "<group>"; };
-		5FF90DBA1E5DA1CA00ABF726 /* PhotoAssetViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = PhotoAssetViewController.swift; sourceTree = "<group>"; };
-		5FF90DBB1E5DA1CA00ABF726 /* PhotoBaseViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = PhotoBaseViewController.swift; sourceTree = "<group>"; };
-		5FF90DBC1E5DA1CA00ABF726 /* ToolBarItem.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ToolBarItem.swift; sourceTree = "<group>"; };
+		5FF90DB51E5DA1CA00ABF726 /* BeautyCenterViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = BeautyCenterViewController.swift; sourceTree = "<group>"; };
 		5FF90DBD1E5DA1CA00ABF726 /* ToolBarView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ToolBarView.swift; sourceTree = "<group>"; };
 		5FF90DBE1E5DA1CA00ABF726 /* VerticalButton.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = VerticalButton.swift; sourceTree = "<group>"; };
 		5FF90DD01E5DA21900ABF726 /* Foundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Foundation.framework; path = System/Library/Frameworks/Foundation.framework; sourceTree = SDKROOT; };
+		5FF90DD21E5E821B00ABF726 /* Photos.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Photos.framework; path = System/Library/Frameworks/Photos.framework; sourceTree = SDKROOT; };
+		5FF90DD41E5E848A00ABF726 /* AssetsLibrary.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = AssetsLibrary.framework; path = System/Library/Frameworks/AssetsLibrary.framework; sourceTree = SDKROOT; };
+		5FF90DD71E5E88F900ABF726 /* EditImageViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = EditImageViewController.swift; sourceTree = "<group>"; };
+		5FF90DD81E5E88F900ABF726 /* ScaleSelectionCollectionViewCell.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ScaleSelectionCollectionViewCell.swift; sourceTree = "<group>"; };
+		5FF90DD91E5E88F900ABF726 /* ScaleSelectionView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ScaleSelectionView.swift; sourceTree = "<group>"; };
+		5FF90DDB1E5E88F900ABF726 /* PhotoAlbumTableViewCell.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = PhotoAlbumTableViewCell.swift; sourceTree = "<group>"; };
+		5FF90DDC1E5E88F900ABF726 /* PhotoAlbumViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = PhotoAlbumViewController.swift; sourceTree = "<group>"; };
+		5FF90DDD1E5E88F900ABF726 /* PhotoAssetCollectionViewCell.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = PhotoAssetCollectionViewCell.swift; sourceTree = "<group>"; };
+		5FF90DDE1E5E88F900ABF726 /* PhotoAssetViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = PhotoAssetViewController.swift; sourceTree = "<group>"; };
+		5FF90DDF1E5E88F900ABF726 /* PhotoBaseViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = PhotoBaseViewController.swift; sourceTree = "<group>"; };
+		5FF90DE81E5E895500ABF726 /* ToolBarItem.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ToolBarItem.swift; sourceTree = "<group>"; };
+		5FF90DEC1E5EBB5700ABF726 /* PresentCustomTransitionAnimator.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = PresentCustomTransitionAnimator.swift; sourceTree = "<group>"; };
+		5FF90DEE1E5EE78700ABF726 /* UserResizableView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = UserResizableView.swift; sourceTree = "<group>"; };
+		5FF90DF01E5EE88900ABF726 /* GridBorderView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = GridBorderView.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -88,6 +97,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				5FF90DD31E5E821B00ABF726 /* Photos.framework in Frameworks */,
 				5FF90DD11E5DA21900ABF726 /* Foundation.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -165,16 +175,16 @@
 		5FF90DAA1E5DA1CA00ABF726 /* VC */ = {
 			isa = PBXGroup;
 			children = (
-				5FF90DAB1E5DA1CA00ABF726 /* BaseViewController.swift */,
 				5FF90DAC1E5DA1CA00ABF726 /* CustomView */,
-				5FF90DAE1E5DA1CA00ABF726 /* EditImage */,
 				5FF90DB21E5DA1CA00ABF726 /* Extension */,
-				5FF90DB41E5DA1CA00ABF726 /* MainNavigationViewController.swift */,
-				5FF90DB51E5DA1CA00ABF726 /* MainViewController.swift */,
-				5FF90DB61E5DA1CA00ABF726 /* Photo */,
-				5FF90DBC1E5DA1CA00ABF726 /* ToolBarItem.swift */,
+				5FF90DD61E5E88F900ABF726 /* EditImage */,
+				5FF90DDA1E5E88F900ABF726 /* Photo */,
+				5FF90DE81E5E895500ABF726 /* ToolBarItem.swift */,
+				5FF90DAB1E5DA1CA00ABF726 /* BaseViewController.swift */,
 				5FF90DBD1E5DA1CA00ABF726 /* ToolBarView.swift */,
 				5FF90DBE1E5DA1CA00ABF726 /* VerticalButton.swift */,
+				5FF90DB41E5DA1CA00ABF726 /* MainNavigationViewController.swift */,
+				5FF90DB51E5DA1CA00ABF726 /* BeautyCenterViewController.swift */,
 			);
 			path = VC;
 			sourceTree = "<group>";
@@ -183,18 +193,11 @@
 			isa = PBXGroup;
 			children = (
 				5FF90DAD1E5DA1CA00ABF726 /* GrayView.swift */,
+				5FF90DEC1E5EBB5700ABF726 /* PresentCustomTransitionAnimator.swift */,
+				5FF90DEE1E5EE78700ABF726 /* UserResizableView.swift */,
+				5FF90DF01E5EE88900ABF726 /* GridBorderView.swift */,
 			);
 			path = CustomView;
-			sourceTree = "<group>";
-		};
-		5FF90DAE1E5DA1CA00ABF726 /* EditImage */ = {
-			isa = PBXGroup;
-			children = (
-				5FF90DAF1E5DA1CA00ABF726 /* EditImageViewController.swift */,
-				5FF90DB01E5DA1CA00ABF726 /* ScaleSelectionCollectionViewCell.swift */,
-				5FF90DB11E5DA1CA00ABF726 /* ScaleSelectionView.swift */,
-			);
-			path = EditImage;
 			sourceTree = "<group>";
 		};
 		5FF90DB21E5DA1CA00ABF726 /* Extension */ = {
@@ -205,24 +208,36 @@
 			path = Extension;
 			sourceTree = "<group>";
 		};
-		5FF90DB61E5DA1CA00ABF726 /* Photo */ = {
-			isa = PBXGroup;
-			children = (
-				5FF90DB71E5DA1CA00ABF726 /* PhotoAlbumTableViewCell.swift */,
-				5FF90DB81E5DA1CA00ABF726 /* PhotoAlbumViewController.swift */,
-				5FF90DB91E5DA1CA00ABF726 /* PhotoAssetCollectionViewCell.swift */,
-				5FF90DBA1E5DA1CA00ABF726 /* PhotoAssetViewController.swift */,
-				5FF90DBB1E5DA1CA00ABF726 /* PhotoBaseViewController.swift */,
-			);
-			path = Photo;
-			sourceTree = "<group>";
-		};
 		5FF90DCF1E5DA21900ABF726 /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
+				5FF90DD41E5E848A00ABF726 /* AssetsLibrary.framework */,
+				5FF90DD21E5E821B00ABF726 /* Photos.framework */,
 				5FF90DD01E5DA21900ABF726 /* Foundation.framework */,
 			);
 			name = Frameworks;
+			sourceTree = "<group>";
+		};
+		5FF90DD61E5E88F900ABF726 /* EditImage */ = {
+			isa = PBXGroup;
+			children = (
+				5FF90DD71E5E88F900ABF726 /* EditImageViewController.swift */,
+				5FF90DD81E5E88F900ABF726 /* ScaleSelectionCollectionViewCell.swift */,
+				5FF90DD91E5E88F900ABF726 /* ScaleSelectionView.swift */,
+			);
+			path = EditImage;
+			sourceTree = "<group>";
+		};
+		5FF90DDA1E5E88F900ABF726 /* Photo */ = {
+			isa = PBXGroup;
+			children = (
+				5FF90DDB1E5E88F900ABF726 /* PhotoAlbumTableViewCell.swift */,
+				5FF90DDC1E5E88F900ABF726 /* PhotoAlbumViewController.swift */,
+				5FF90DDD1E5E88F900ABF726 /* PhotoAssetCollectionViewCell.swift */,
+				5FF90DDE1E5E88F900ABF726 /* PhotoAssetViewController.swift */,
+				5FF90DDF1E5E88F900ABF726 /* PhotoBaseViewController.swift */,
+			);
+			path = Photo;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -363,22 +378,25 @@
 			buildActionMask = 2147483647;
 			files = (
 				5FF90D7F1E5DA17400ABF726 /* ViewController.swift in Sources */,
+				5FF90DE41E5E88FA00ABF726 /* PhotoAlbumViewController.swift in Sources */,
+				5FF90DE61E5E88FA00ABF726 /* PhotoAssetViewController.swift in Sources */,
 				5FF90DC51E5DA1CA00ABF726 /* MainNavigationViewController.swift in Sources */,
+				5FF90DE91E5E895500ABF726 /* ToolBarItem.swift in Sources */,
+				5FF90DEF1E5EE78700ABF726 /* UserResizableView.swift in Sources */,
+				5FF90DE31E5E88FA00ABF726 /* PhotoAlbumTableViewCell.swift in Sources */,
+				5FF90DED1E5EBB5700ABF726 /* PresentCustomTransitionAnimator.swift in Sources */,
+				5FF90DE71E5E88FA00ABF726 /* PhotoBaseViewController.swift in Sources */,
 				5FF90D7D1E5DA17400ABF726 /* AppDelegate.swift in Sources */,
-				5FF90DC91E5DA1CA00ABF726 /* PhotoAssetCollectionViewCell.swift in Sources */,
-				5FF90DC21E5DA1CA00ABF726 /* ScaleSelectionCollectionViewCell.swift in Sources */,
-				5FF90DC31E5DA1CA00ABF726 /* ScaleSelectionView.swift in Sources */,
-				5FF90DC71E5DA1CA00ABF726 /* PhotoAlbumTableViewCell.swift in Sources */,
 				5FF90DBF1E5DA1CA00ABF726 /* BaseViewController.swift in Sources */,
-				5FF90DC11E5DA1CA00ABF726 /* EditImageViewController.swift in Sources */,
 				5FF90DC01E5DA1CA00ABF726 /* GrayView.swift in Sources */,
-				5FF90DCA1E5DA1CA00ABF726 /* PhotoAssetViewController.swift in Sources */,
+				5FF90DF11E5EE88900ABF726 /* GridBorderView.swift in Sources */,
 				5FF90DC41E5DA1CA00ABF726 /* UIColor+Extension.swift in Sources */,
-				5FF90DCB1E5DA1CA00ABF726 /* PhotoBaseViewController.swift in Sources */,
-				5FF90DC61E5DA1CA00ABF726 /* MainViewController.swift in Sources */,
+				5FF90DC61E5DA1CA00ABF726 /* BeautyCenterViewController.swift in Sources */,
+				5FF90DE11E5E88FA00ABF726 /* ScaleSelectionCollectionViewCell.swift in Sources */,
+				5FF90DE21E5E88FA00ABF726 /* ScaleSelectionView.swift in Sources */,
+				5FF90DE51E5E88FA00ABF726 /* PhotoAssetCollectionViewCell.swift in Sources */,
 				5FF90DCD1E5DA1CA00ABF726 /* ToolBarView.swift in Sources */,
-				5FF90DCC1E5DA1CA00ABF726 /* ToolBarItem.swift in Sources */,
-				5FF90DC81E5DA1CA00ABF726 /* PhotoAlbumViewController.swift in Sources */,
+				5FF90DE01E5E88FA00ABF726 /* EditImageViewController.swift in Sources */,
 				5FF90DCE1E5DA1CA00ABF726 /* VerticalButton.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -535,7 +553,7 @@
 				INFOPLIST_FILE = XiheMtxx/Info.plist;
 				IPHONEOS_DEPLOYMENT_TARGET = 8.0;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
-				PRODUCT_BUNDLE_IDENTIFIER = com.xihe.XiheMtxx;
+				PRODUCT_BUNDLE_IDENTIFIER = com.xihe.EasyCard;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_VERSION = 3.0;
 			};
@@ -549,7 +567,7 @@
 				INFOPLIST_FILE = XiheMtxx/Info.plist;
 				IPHONEOS_DEPLOYMENT_TARGET = 8.0;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
-				PRODUCT_BUNDLE_IDENTIFIER = com.xihe.XiheMtxx;
+				PRODUCT_BUNDLE_IDENTIFIER = com.xihe.EasyCard;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_VERSION = 3.0;
 			};
@@ -632,6 +650,7 @@
 				5FF90DA31E5DA17400ABF726 /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
 		};
 		5FF90DA41E5DA17400ABF726 /* Build configuration list for PBXNativeTarget "XiheMtxxTests" */ = {
 			isa = XCConfigurationList;
@@ -640,6 +659,7 @@
 				5FF90DA61E5DA17400ABF726 /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
 		};
 		5FF90DA71E5DA17400ABF726 /* Build configuration list for PBXNativeTarget "XiheMtxxUITests" */ = {
 			isa = XCConfigurationList;
@@ -648,6 +668,7 @@
 				5FF90DA91E5DA17400ABF726 /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
 		};
 /* End XCConfigurationList section */
 	};
