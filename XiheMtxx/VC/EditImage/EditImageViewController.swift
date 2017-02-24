@@ -23,7 +23,7 @@ class EditImageViewController: BaseViewController {
     
     // 遮罩层
     lazy var grayView: GrayView = {
-        let _grayView = GrayView(frame: CGRect(x: 0, y: 0, width: UIScreen.main.bounds.size.width, height: UIScreen.main.bounds.size.height * self.imageAndScreenHeightRatio))
+        let _grayView = GrayView(frame: CGRect.zero)
         return _grayView
     }()
     
@@ -110,13 +110,22 @@ class EditImageViewController: BaseViewController {
     lazy var scaleSelectionView: ScaleSelectionView = {
         let _scaleSelectionView = ScaleSelectionView(frame: CGRect.zero)
         _scaleSelectionView.translatesAutoresizingMaskIntoConstraints = false
+        _scaleSelectionView.delegate = self
         return _scaleSelectionView
+    }()
+    
+    // 尺寸调整View
+    lazy var resizableView: UserResizableView = {
+        let _resizableView = UserResizableView(frame: CGRect.zero)
+        _resizableView.isHidden = true
+        return _resizableView
     }()
     
     override func viewDidLoad() {
         super.viewDidLoad()
         self.view.backgroundColor = UIColor.colorWithHexString(hex: "#2c2e30")
         self.imageView.image = self.image
+        self.imageView.addSubview(self.resizableView)
         self.view.addSubview(self.imageView)
         self.imageView.addSubview(self.grayView)
         
@@ -215,5 +224,49 @@ class EditImageViewController: BaseViewController {
     // 裁剪按钮点击
     func cutButtonClicked(sender: UIButton) -> Void {
         
+    }
+}
+
+extension EditImageViewController: ScaleSelectionViewDelegate {
+    func scaleSelected(scaleType: ScaleType) {
+        self.resizableView.setCenterImageHidden(hidden: scaleType != .scale_free)
+        self.resizableView.isHidden = false
+        // 缩小后的图片像素尺寸
+        let scaleSize = scaleType.scaleDownInSize(originSize: (self.image?.size)!)
+        self.resizableView.sizeLabel.text = "\(Int(scaleSize.width)) * \(Int(scaleSize.height))"
+        
+        // 缩小后的图片比例
+        let scale = scaleSize.width / scaleSize.height
+        
+        // 原始图片View的尺寸
+        let originImageScale = (self.image?.size.width)!/(self.image?.size.height)!
+        let imageViewSize = self.imageView.frame.size
+        let imageViewScale = imageViewSize.width/imageViewSize.height
+        var imageSizeInView = imageViewSize
+        
+        // 得出图片在ImageView中的尺寸
+        if imageViewScale <= originImageScale {
+            imageSizeInView = CGSize(width: imageViewSize.width, height: imageViewSize.width / originImageScale)
+        }
+        else {
+            imageSizeInView = CGSize(width: imageViewSize.height * originImageScale, height: imageViewSize.height)
+        }
+        
+        // 按照图片在View中的大小截取图片
+        var imageSizeAfterScaleDown = imageSizeInView
+        if originImageScale <= scale {
+            imageSizeAfterScaleDown = CGSize(width: imageSizeInView.width, height: imageSizeInView.width / scale)
+        }
+        else {
+            imageSizeAfterScaleDown = CGSize(width: imageSizeInView.height * scale, height: imageSizeInView.height)
+        }
+        
+        // 计算resizeView.frame
+        let newOrigin = CGPoint(x: (self.imageView.frame.size.width - imageSizeAfterScaleDown.width)/2, y: (self.imageView.frame.size.height - imageSizeAfterScaleDown.height)/2)
+        let resizeFrame = CGRect(origin: newOrigin, size: imageSizeAfterScaleDown)
+        self.resizableView.frame = resizeFrame
+        self.grayView.centerFrame = resizeFrame
+        self.grayView.setNeedsDisplay()
+        self.resizableView.gridBorderView.setNeedsDisplay()
     }
 }

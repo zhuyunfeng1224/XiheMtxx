@@ -8,24 +8,20 @@
 
 import UIKit
 
-class ToolBarItem: UIControl {
+class ToolBarItem: UIView {
     
     var item: ToolBarItemObject!
     
-    lazy var imageView: UIImageView = {
-        let _imageView = UIImageView()
-        _imageView.translatesAutoresizingMaskIntoConstraints = false
-        _imageView.contentMode = .scaleAspectFit
-        return _imageView
-    }()
-    
-    lazy var titleLabel: UILabel = {
-        let _titleLabel = UILabel()
-        _titleLabel.textColor = UIColor.gray
-        _titleLabel.translatesAutoresizingMaskIntoConstraints = false
-        _titleLabel.font = UIFont.systemFont(ofSize: 10)
-        _titleLabel.textAlignment = .center
-        return _titleLabel
+    lazy var itemButton: VerticalButton = {
+        let _itemButton = VerticalButton()
+        _itemButton.translatesAutoresizingMaskIntoConstraints = false
+        _itemButton.setTitleColor(UIColor.darkGray, for: .normal)
+        _itemButton.setTitleColor(UIColor.colorWithHexString(hex: "#578fff"), for: .highlighted)
+        _itemButton.titleLabel?.font = UIFont.systemFont(ofSize: 10)
+        _itemButton.imageView?.contentMode = .center
+        _itemButton.addTarget(self, action: #selector(touch(sender:)), for: .touchUpInside)
+        _itemButton.titleEdgeInsets = UIEdgeInsets(top: 0, left: 0, bottom: 5, right: 0)
+        return _itemButton
     }()
     
     override init(frame: CGRect) {
@@ -39,29 +35,21 @@ class ToolBarItem: UIControl {
     override func updateConstraints() {
         super.updateConstraints()
         
-        let imageViewHConstraints = NSLayoutConstraint.constraints(withVisualFormat: "H:|-13-[imageView]-13-|", options: NSLayoutFormatOptions(rawValue: 0), metrics: nil, views: ["imageView": self.imageView])
-        self.addConstraints(imageViewHConstraints)
+        let itemButtonHConstraints = NSLayoutConstraint.constraints(withVisualFormat: "H:|-0-[itemButton]-0-|", options: NSLayoutFormatOptions(rawValue: 0), metrics: nil, views: ["itemButton": self.itemButton])
+        self.addConstraints(itemButtonHConstraints)
         
-        let imageViewVConstraints = NSLayoutConstraint.constraints(withVisualFormat: "V:|-1-[imageView(==width)]", options: NSLayoutFormatOptions(rawValue: 0), metrics: ["width": ((superview?.frame.size.height)! - 26.0)], views: ["imageView": self.imageView, "superView": self])
-        self.addConstraints(imageViewVConstraints)
-        
-        let titleLabelHConstraints = NSLayoutConstraint.constraints(withVisualFormat: "H:|-7.5-[titleLabel]-7.5-|", options: NSLayoutFormatOptions(rawValue: 0), metrics: nil, views: ["titleLabel": self.titleLabel])
-        self.addConstraints(titleLabelHConstraints)
-        
-        let titleLabelVConstraints = NSLayoutConstraint.constraints(withVisualFormat: "V:[titleLabel(==12)]-5-|", options: NSLayoutFormatOptions(rawValue: 0), metrics: nil, views: ["titleLabel": self.titleLabel])
-        self.addConstraints(titleLabelVConstraints)
+        let itemButtonVConstraints = NSLayoutConstraint.constraints(withVisualFormat: "V:|-1-[itemButton]-1-|", options: NSLayoutFormatOptions(rawValue: 0), metrics: nil, views: ["itemButton": self.itemButton])
+        self.addConstraints(itemButtonVConstraints)
     }
     
     convenience init(frame: CGRect, itemObject: ToolBarItemObject) {
         self.init(frame: frame)
-        self.item = itemObject
-        self.imageView.image = UIImage(named: (itemObject.imageName)!)
-        self.addSubview(self.imageView)
-        self.titleLabel.text = itemObject.titleName
-        self.addSubview(self.titleLabel)
+        self.addSubview(self.itemButton)
         self.setNeedsUpdateConstraints()
-        
-        self.addTarget(self, action: #selector(touch(sender:)), for: .touchUpInside)
+        self.item = itemObject
+        self.itemButton.setImage(UIImage(named: self.item.imageName!), for: .normal)
+        self.itemButton.setImage(UIImage(named: self.item.highlightImageName!), for: .highlighted)
+        self.itemButton.setTitle(self.item.titleName, for: .normal)
     }
     
     func touch(sender:ToolBarItem) -> Void {
@@ -73,6 +61,7 @@ class ToolBarItem: UIControl {
 
 class ToolBarItemObject: NSObject {
     var imageName: String?
+    var highlightImageName: String?
     var titleName: String?
     var action: (() -> ())?
 }

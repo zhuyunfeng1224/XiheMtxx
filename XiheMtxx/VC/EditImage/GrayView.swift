@@ -10,6 +10,8 @@ import UIKit
 
 class GrayView: UIView {
     
+    var centerFrame: CGRect = CGRect.zero
+    
     override init(frame: CGRect) {
         super.init(frame: frame)
         self.backgroundColor = UIColor.black.withAlphaComponent(0.2)
@@ -17,5 +19,10 @@ class GrayView: UIView {
     
     required init?(coder aDecoder: NSCoder) {
         fatalError("init(coder:) has not been implemented")
+    }
+    
+    override func draw(_ rect: CGRect) {
+        let context = UIGraphicsGetCurrentContext()
+        context?.clear(centerFrame)
     }
 }

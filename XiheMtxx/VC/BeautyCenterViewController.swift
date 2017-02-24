@@ -79,30 +79,30 @@ class BeautyCenterViewController: BaseViewController {
     }()
     
     lazy var toolBar: ToolBarView = {
-        let sizeItem = ToolBarItemObject()
-        sizeItem.imageName = "icon_meihua_frame_normal_30x30_"
-        sizeItem.titleName = "编辑"
-        sizeItem.action = {
+        let editItem = ToolBarItemObject()
+        editItem.imageName = "icon_meihua_edit_normal_30x30_"
+        editItem.highlightImageName = "icon_meihua_edit_highlighted_30x30_"
+        editItem.titleName = "编辑"
+        editItem.action = {
             self.editImage()
         }
         
-        let backgroundItem = ToolBarItemObject()
-        backgroundItem.imageName = "icon_meihua_smart_normal_30x30_"
-        backgroundItem.titleName = "背景"
+        let enhanceItem = ToolBarItemObject()
+        enhanceItem.imageName = "icon_meihua_enhance_normal_30x30_"
+        enhanceItem.highlightImageName = "icon_meihua_enhance_highlighted_30x30_"
+        enhanceItem.titleName = "增强"
         
-        let textItem = ToolBarItemObject()
-        textItem.imageName = "icon_meihua_word_normal_30x30_"
-        textItem.titleName = "文字"
+        let filterItem = ToolBarItemObject()
+        filterItem.imageName = "icon_meihua_filter_normal_30x30_"
+        filterItem.highlightImageName = "icon_meihua_filter_highlighted_30x30_"
+        filterItem.titleName = "特效"
         
-        let imageItem = ToolBarItemObject()
-        imageItem.imageName = "icon_meihua_sticker_normal_30x30_"
-        imageItem.titleName = "图片"
+        let stickerItem = ToolBarItemObject()
+        stickerItem.imageName = "icon_meihua_sticker_normal_30x30_"
+        stickerItem.highlightImageName = "icon_meihua_sticker_highlighted_30x30_"
+        stickerItem.titleName = "贴纸"
         
-        let styleItem = ToolBarItemObject()
-        styleItem.imageName = "ic_keyboard_normal_18x18_"
-        styleItem.titleName = "排版"
-        
-        let _toolBar = ToolBarView(items: [sizeItem, backgroundItem, textItem, imageItem, styleItem])
+        let _toolBar = ToolBarView(items: [editItem, enhanceItem, filterItem, stickerItem])
         return _toolBar
     }()
 

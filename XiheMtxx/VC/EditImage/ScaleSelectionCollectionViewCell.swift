@@ -12,8 +12,9 @@ class ScaleSelectionCollectionViewCell: UICollectionViewCell {
     lazy var itemButton: VerticalButton = {
         let _itemButton = VerticalButton(frame: CGRect.zero)
         _itemButton.translatesAutoresizingMaskIntoConstraints = false
-        _itemButton.imageView?.contentMode = .scaleAspectFit
-        _itemButton.setTitleColor(UIColor.blue, for: .highlighted)
+        _itemButton.imageView?.contentMode = .center
+        _itemButton.setTitleColor(UIColor.colorWithHexString(hex: "#578fff"), for: .highlighted)
+        _itemButton.setTitleColor(UIColor.colorWithHexString(hex: "#578fff"), for: .selected)
         _itemButton.setTitleColor(UIColor.gray, for: .normal)
         _itemButton.titleLabel?.font = UIFont.systemFont(ofSize: 10)
         return _itemButton

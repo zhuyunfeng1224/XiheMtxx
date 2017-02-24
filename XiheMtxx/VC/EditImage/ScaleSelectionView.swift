@@ -8,16 +8,88 @@
 
 import UIKit
 
+enum ScaleType: Int {
+    case scale_free
+    case scale_1_1
+    case scale_2_3
+    case scale_3_2
+    case scale_3_4
+    case scale_4_3
+    case scale_9_16
+    case scale_16_9
+    
+    func info() -> (scale: CGSize, title: String, normalImage: String, highlightImage: String) {
+        if self == .scale_1_1 {
+            
+            return (CGSize(width: 1, height: 1),
+                    "1:1",
+                    "icon_meihua_scale_1-1_normal_30x30_",
+                    "icon_meihua_scale_1-1_highlighted_30x30_")
+        }
+        else if self == .scale_2_3 {
+            return (CGSize(width: 2, height: 3),
+                    "2:3",
+                    "icon_meihua_scale_2-3_normal_30x30_",
+                    "icon_meihua_scale_2-3_highlighted_30x30_")
+        }
+        else if self == .scale_3_2 {
+            return (CGSize(width: 3, height: 2),
+                    "3:2",
+                    "icon_meihua_scale_3-2_normal_30x30_",
+                    "icon_meihua_scale_3-2_highlighted_30x30_")
+        }
+        else if self == .scale_3_4 {
+            return (CGSize(width: 3, height: 4),
+                    "3:4",
+                    "icon_meihua_scale_3-4_normal_30x30_",
+                    "icon_meihua_scale_3-4_highlighted_30x30_")
+        }
+        else if self == .scale_4_3 {
+            return (CGSize(width: 4, height: 3),
+                    "4:3",
+                    "icon_meihua_scale_4-3_normal_30x30_",
+                    "icon_meihua_scale_4-3_highlighted_30x30_")
+        }
+        else if self == .scale_9_16 {
+            return (CGSize(width: 9, height: 16),
+                    "9:16",
+                    "icon_meihua_scale_9-16_normal_30x30_",
+                    "icon_meihua_scale_9-16_highlighted_30x30_")
+        }
+        else if self == .scale_16_9 {
+            return (CGSize(width: 16, height: 9),
+                    "16:9",
+                    "icon_meihua_scale_16-9_normal_30x30_",
+                    "icon_meihua_scale_16-9_highlighted_30x30_")
+        }
+        else {
+            return (CGSize(width: 1, height: 1),
+                    "自由",
+                    "icon_meihua_scale_free_normal_30x30_",
+                    "icon_meihua_scale_free_highlighted_30x30_")
+        }
+    }
+    
+    // 按比例缩小
+    func scaleDownInSize(originSize: CGSize) -> CGSize {
+        let scaleSize = self.info().scale
+        let scale = scaleSize.width / scaleSize.height
+        if (originSize.width / originSize.height) > scale {
+            return CGSize(width: originSize.height * scale, height: originSize.height)
+
+        }
+        return CGSize(width: originSize.width, height: originSize.width / scale)
+    }
+}
+
+protocol ScaleSelectionViewDelegate: NSObjectProtocol {
+    func scaleSelected(scaleType: ScaleType) -> Void
+}
+
 class ScaleSelectionView: UIView {
     
-    var dataSource = [["title": "自由", "image": "icon_meihua_scale_free_normal_30x30_", "highlightImage": "icon_meihua_scale_free_highlighted_30x30_"],
-                      ["title": "1:1", "image": "icon_meihua_scale_1-1_normal_30x30_", "highlightImage": "icon_meihua_scale_1-1_highlighted_30x30_"],
-                      ["title": "2:3", "image": "icon_meihua_scale_2-3_normal_30x30_", "highlightImage": "icon_meihua_scale_2-3_highlighted_30x30_"],
-                      ["title": "3:2", "image": "icon_meihua_scale_3-2_normal_30x30_", "highlightImage": "icon_meihua_scale_3-2_highlighted_30x30_"],
-                      ["title": "3:4", "image": "icon_meihua_scale_3-4_normal_30x30_", "highlightImage": "icon_meihua_scale_3-4_highlighted_30x30_"],
-                      ["title": "4:3", "image": "icon_meihua_scale_4-3_normal_30x30_", "highlightImage": "icon_meihua_scale_4-3_highlighted_30x30_"],
-                      ["title": "9:16", "image": "icon_meihua_scale_9-16_normal_30x30_", "highlightImage": "icon_meihua_scale_9-16_highlighted_30x30_"],
-                      ["title": "16:9", "image": "icon_meihua_scale_16-9_normal_30x30_", "highlightImage": "icon_meihua_scale_16-9_highlighted_30x30_"]]
+    var selectIndex: Int = 0
+    weak var delegate: ScaleSelectionViewDelegate?
     
     lazy var collectionView: UICollectionView = {
         let flowLayout = UICollectionViewFlowLayout()
@@ -30,12 +102,20 @@ class ScaleSelectionView: UIView {
         _collectionView.showsHorizontalScrollIndicator = false
         _collectionView.showsVerticalScrollIndicator = false
         _collectionView.translatesAutoresizingMaskIntoConstraints = false
+        
         return _collectionView
     }()
     
     override init(frame: CGRect) {
         super.init(frame: frame)
         self.addSubview(self.collectionView)
+        self.collectionView.performBatchUpdates({
+            
+        }) { (finished) in
+            if finished {
+                self.itemSelect(atIndex: 0)
+            }
+        }
     }
     
     required init?(coder aDecoder: NSCoder) {
@@ -55,15 +135,18 @@ extension ScaleSelectionView: UICollectionViewDataSource, UICollectionViewDelega
     @available(iOS 6.0, *)
     public func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
         let cell: ScaleSelectionCollectionViewCell = collectionView.dequeueReusableCell(withReuseIdentifier: String(describing: ScaleSelectionCollectionViewCell.self), for: indexPath) as! ScaleSelectionCollectionViewCell
-        let data: [String : String] = self.dataSource[indexPath.row]
-        let imageString = data["image"]!
-        let highlightImageString = data["highlightImage"]!
-        let titleString = data["title"]!
         
-        cell.itemButton.setImage(UIImage(named:imageString), for: .normal)
-        cell.itemButton.setImage(UIImage(named:highlightImageString), for: .highlighted)
-        cell.itemButton.setTitle(titleString, for: .normal)
-        cell.itemButton.setTitle(titleString, for: .highlighted)
+        let scaleType = ScaleType(rawValue: indexPath.row)
+        let info = scaleType?.info()
+        
+        cell.itemButton.setImage(UIImage(named:info!.normalImage), for: .normal)
+        cell.itemButton.setImage(UIImage(named:info!.highlightImage), for: .highlighted)
+        cell.itemButton.setImage(UIImage(named:info!.highlightImage), for: .selected)
+        cell.itemButton.setTitle(info!.title, for: .normal)
+        cell.itemButton.setTitle(info!.title, for: .highlighted)
+        cell.itemButton.isSelected = self.selectIndex == indexPath.row
+        cell.itemButton.tag = indexPath.row
+        cell.itemButton.addTarget(self, action: #selector(itemSelect(sender:)), for: .touchUpInside)
         
         return cell
     }
@@ -74,5 +157,19 @@ extension ScaleSelectionView: UICollectionViewDataSource, UICollectionViewDelega
     
     func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
         return 8
+    }
+    
+    func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
+        self.itemSelect(atIndex: indexPath.row)
+    }
+    
+    func itemSelect(sender: UIButton) -> Void {
+        self.itemSelect(atIndex: sender.tag)
+    }
+    
+    func itemSelect(atIndex index: Int) -> Void {
+        self.selectIndex = index
+        collectionView.reloadData()
+        self.delegate?.scaleSelected(scaleType: ScaleType(rawValue: self.selectIndex)!)
     }
 }
