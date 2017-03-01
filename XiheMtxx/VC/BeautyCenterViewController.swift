@@ -185,7 +185,7 @@ class BeautyCenterViewController: BaseViewController {
         }) { (finished) in
             if finished {
                 let editImageVC = EditImageViewController()
-                editImageVC.image = self.originImage
+                editImageVC.originImage = self.originImage
                 editImageVC.modalPresentationStyle = .fullScreen
                 editImageVC.transitioningDelegate = self
                 self.present(editImageVC, animated: true) {

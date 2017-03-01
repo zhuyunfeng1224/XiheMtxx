@@ -10,7 +10,11 @@ import UIKit
 
 class GrayView: UIView {
     
-    var centerFrame: CGRect = CGRect.zero
+    var centerFrame: CGRect = CGRect.zero {
+        didSet {
+           self.setNeedsDisplay()
+        }
+    }
     
     override init(frame: CGRect) {
         super.init(frame: frame)

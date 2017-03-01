@@ -168,8 +168,7 @@ extension RatioSelectionView: UICollectionViewDataSource, UICollectionViewDelega
     }
     
     func itemSelect(atIndex index: Int) -> Void {
-        self.selectIndex = index
+        self.delegate?.ratioSelected(ratioType: RatioType(rawValue: index)!)
         collectionView.reloadData()
-        self.delegate?.ratioSelected(ratioType: RatioType(rawValue: self.selectIndex)!)
     }
 }

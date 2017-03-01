@@ -8,8 +8,17 @@
 
 import UIKit
 
+protocol UserResizableViewDelegate: NSObjectProtocol {
+    func resizeView() -> Void
+}
+
 class UserResizableView: UIView {
     var imageBounds: CGRect!
+    let cornerImageWidth: CGFloat = 45.0
+    var aspectRatio: CGFloat = 0.0
+    weak var delegate: UserResizableViewDelegate?
+    let limitSize = CGSize(width: 90.0, height: 90.0)
+    
     var translationRatio: RatioType = .ratio_free {
         didSet {
             let _ratio = self.translationRatio.info().aspectRatio
@@ -19,9 +28,7 @@ class UserResizableView: UIView {
             self.aspectRatio = _ratio.width / _ratio.height
         }
     }
-    var aspectRatio: CGFloat = 0.0
-    
-    let limitSize = CGSize(width: 50, height: 50)
+
     lazy var gridBorderView: GridBorderView = {
         let _gridBorderView = GridBorderView(frame: CGRect.zero)
         _gridBorderView.isUserInteractionEnabled = true
@@ -34,6 +41,8 @@ class UserResizableView: UIView {
         let _sizeLabel = UILabel(frame: CGRect.zero)
         _sizeLabel.textColor = UIColor.white
         _sizeLabel.textAlignment = .center
+        _sizeLabel.shadowColor = UIColor.black.withAlphaComponent(0.5)
+        _sizeLabel.shadowOffset = CGSize(width: 1, height: 1)
         return _sizeLabel
     }()
     
@@ -113,9 +122,12 @@ class UserResizableView: UIView {
         _rightBottomCorner.addGestureRecognizer(panGesture)
         return _rightBottomCorner
     }()
+
+    // MARK: Override Method
     
     override init(frame: CGRect) {
         super.init(frame: frame)
+        self.clipsToBounds = false
         self.addSubview(self.sizeLabel)
         self.addSubview(self.gridBorderView)
         self.addSubview(self.leftTopCorner)
@@ -132,20 +144,65 @@ class UserResizableView: UIView {
         super.layoutSubviews()
         self.sizeLabel.frame = CGRect(origin: CGPoint.zero, size: self.frame.size)
         self.gridBorderView.frame = CGRect(origin: CGPoint.zero, size: self.frame.size)
-        self.leftTopCorner.frame = CGRect(x: -17.5, y: -17.5, width: 35, height: 35)
-        self.centerTopCorner.frame = CGRect(x: (self.frame.width-35)/2, y: -17.5, width: 35, height: 35)
-        self.rightTopCorner.frame = CGRect(x: self.frame.width-17.5, y: -17.5, width: 35, height: 35)
-        self.leftCenterCorner.frame = CGRect(x: -17.5, y: (self.frame.height-35)/2, width: 35, height: 35)
-        self.rightCenterCorner.frame = CGRect(x: self.frame.width-17.5, y: (self.frame.height-35)/2, width: 35, height: 35)
-        self.leftBottomCorner.frame = CGRect(x: -17.5, y: self.frame.height-17.5, width: 35, height: 35)
-        self.centerBottomCorner.frame = CGRect(x: (self.frame.width-35)/2, y: self.frame.height-17.5, width: 35, height: 35)
-        self.rightBottomCorner.frame = CGRect(x: self.frame.width-17.5, y: self.frame.height-17.5, width: 35, height: 35)
+        self.leftTopCorner.frame = CGRect(x: -cornerImageWidth/2, y: -cornerImageWidth/2, width: cornerImageWidth, height: cornerImageWidth)
+        self.centerTopCorner.frame = CGRect(x: (self.frame.width-cornerImageWidth)/2, y: -cornerImageWidth/2, width: cornerImageWidth, height: cornerImageWidth)
+        self.rightTopCorner.frame = CGRect(x: self.frame.width-cornerImageWidth/2, y: -cornerImageWidth/2, width: cornerImageWidth, height: cornerImageWidth)
+        self.leftCenterCorner.frame = CGRect(x: -cornerImageWidth/2, y: (self.frame.height-cornerImageWidth)/2, width: cornerImageWidth, height: cornerImageWidth)
+        self.rightCenterCorner.frame = CGRect(x: self.frame.width-cornerImageWidth/2, y: (self.frame.height-cornerImageWidth)/2, width: cornerImageWidth, height: cornerImageWidth)
+        self.leftBottomCorner.frame = CGRect(x: -cornerImageWidth/2, y: self.frame.height-cornerImageWidth/2, width: cornerImageWidth, height: cornerImageWidth)
+        self.centerBottomCorner.frame = CGRect(x: (self.frame.width-cornerImageWidth)/2, y: self.frame.height-cornerImageWidth/2, width: cornerImageWidth, height: cornerImageWidth)
+        self.rightBottomCorner.frame = CGRect(x: self.frame.width-cornerImageWidth/2, y: self.frame.height-cornerImageWidth/2, width: cornerImageWidth, height: cornerImageWidth)
     }
     
     required init?(coder aDecoder: NSCoder) {
         fatalError("init(coder:) has not been implemented")
     }
     
+    // 扩大各个角拖动的热点
+    override func hitTest(_ point: CGPoint, with event: UIEvent?) -> UIView? {
+        if self.isHidden {
+            return nil
+        }
+        
+        if self.leftBottomCorner.frame.contains(point) && !self.leftBottomCorner.isHidden {
+            return self.leftBottomCorner
+        }
+        
+        if self.leftTopCorner.frame.contains(point) && !self.leftTopCorner.isHidden {
+            return self.leftTopCorner
+        }
+        
+        if self.leftCenterCorner.frame.contains(point) && !self.leftCenterCorner.isHidden {
+            return self.leftCenterCorner
+        }
+        
+        if self.centerTopCorner.frame.contains(point) && !self.centerTopCorner.isHidden {
+            return self.centerTopCorner
+        }
+        
+        if self.centerBottomCorner.frame.contains(point) && !self.centerBottomCorner.isHidden {
+            return self.centerBottomCorner
+        }
+        
+        if self.rightTopCorner.frame.contains(point) && !self.rightTopCorner.isHidden {
+            return self.rightTopCorner
+        }
+        
+        if self.rightCenterCorner.frame.contains(point) && !self.rightCenterCorner.isHidden {
+            return self.rightCenterCorner
+        }
+        
+        if self.rightBottomCorner.frame.contains(point) && !self.rightBottomCorner.isHidden {
+            return self.rightBottomCorner
+        }
+       
+        if self.gridBorderView.frame.contains(point) && !self.gridBorderView.isHidden {
+            return self.gridBorderView
+        }
+        return self
+    }
+    
+    // MARK: Public Method
     // 隐藏中间的图片
     func setCenterImageHidden(hidden: Bool) -> Void {
         self.leftCenterCorner.isHidden = hidden
@@ -153,6 +210,8 @@ class UserResizableView: UIView {
         self.centerTopCorner.isHidden = hidden
         self.centerBottomCorner.isHidden = hidden
     }
+    
+    // MARK: 手势事件
     
     // 拖拽移动事件
     func moveAllView(sender: UIPanGestureRecognizer) -> Void {
@@ -187,6 +246,10 @@ class UserResizableView: UIView {
         
         self.frame = CGRect(origin: origin, size: size)
         sender.setTranslation(CGPoint.zero, in: self)
+        
+        if sender.state == .ended {
+            self.delegate?.resizeView()
+        }
         
     }
     
@@ -247,6 +310,9 @@ class UserResizableView: UIView {
         
         self.frame = CGRect(origin: origin, size: size)
         sender.setTranslation(CGPoint.zero, in: self)
+        if sender.state == .ended {
+            self.delegate?.resizeView()
+        }
     }
     
     // 左下角
@@ -306,6 +372,9 @@ class UserResizableView: UIView {
         
         self.frame = CGRect(origin: origin, size: size)
         sender.setTranslation(CGPoint.zero, in: self)
+        if sender.state == .ended {
+            self.delegate?.resizeView()
+        }
     }
     
     // 右上角
@@ -362,6 +431,9 @@ class UserResizableView: UIView {
         
         self.frame = CGRect(origin: origin, size: size)
         sender.setTranslation(CGPoint.zero, in: self)
+        if sender.state == .ended {
+            self.delegate?.resizeView()
+        }
     }
     
     // 右下角
@@ -416,6 +488,9 @@ class UserResizableView: UIView {
         
         self.frame = CGRect(origin: origin, size: size)
         sender.setTranslation(CGPoint.zero, in: self)
+        if sender.state == .ended {
+            self.delegate?.resizeView()
+        }
     }
     
     // 左中
@@ -432,6 +507,9 @@ class UserResizableView: UIView {
         
         self.frame = CGRect(origin: origin, size: size)
         sender.setTranslation(CGPoint.zero, in: self)
+        if sender.state == .ended {
+            self.delegate?.resizeView()
+        }
     }
     
     // 右中
@@ -447,6 +525,10 @@ class UserResizableView: UIView {
         
         self.frame = CGRect(origin: origin, size: size)
         sender.setTranslation(CGPoint.zero, in: self)
+        
+        if sender.state == .ended {
+            self.delegate?.resizeView()
+        }
     }
     
     // 上中
@@ -463,6 +545,10 @@ class UserResizableView: UIView {
         
         self.frame = CGRect(origin: origin, size: size)
         sender.setTranslation(CGPoint.zero, in: self)
+        
+        if sender.state == .ended {
+            self.delegate?.resizeView()
+        }
     }
     
     // 下中
@@ -478,7 +564,13 @@ class UserResizableView: UIView {
         
         self.frame = CGRect(origin: origin, size: size)
         sender.setTranslation(CGPoint.zero, in: self)
+        
+        if sender.state == .ended {
+            self.delegate?.resizeView()
+        }
     }
+    
+    // MARK: Private Method
     
     // 是否在左边界内
     func boundInLeft(translationPoint: CGPoint) -> Bool {
@@ -518,18 +610,4 @@ class UserResizableView: UIView {
             && h > self.limitSize.height
     }
     
-    func sizeOfScale(size: CGSize) -> CGSize {
-        if self.aspectRatio == 0 {
-            return size
-        }
-        let newScale = size.width/size.height
-        var newSize = size
-        if newScale > self.aspectRatio {
-            newSize.height = size.width / self.aspectRatio
-        }
-        else {
-            newSize.width = size.height * self.aspectRatio
-        }
-        return newSize
-    }
 }
