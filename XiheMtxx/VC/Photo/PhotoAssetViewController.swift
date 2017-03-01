@@ -11,7 +11,20 @@ import Photos
 
 class PhotoAssetViewController: PhotoBaseViewController {
     
-    var assets: [PHAsset] = []
+    var assets: [PHAsset] = [] {
+        didSet {
+            self.collectionView.reloadData()
+            // 开始加载滚动到最后
+            self.collectionView.performBatchUpdates({
+                
+            }) { (finish) in
+                if finish {
+                    let indexPath = IndexPath(item: self.assets.count - 1, section: 0)
+                    self.collectionView.scrollToItem(at:indexPath , at: .bottom, animated: false)
+                }
+            }
+        }
+    }
     
     lazy var collectionView: UICollectionView = {
         
@@ -38,16 +51,6 @@ class PhotoAssetViewController: PhotoBaseViewController {
         self.view.backgroundColor = UIColor.white
         self.view.addSubview(self.collectionView)
         self.view.setNeedsUpdateConstraints()
-        self.collectionView.reloadData()
-        // 开始加载滚动到最后
-        self.collectionView.performBatchUpdates({ 
-            
-        }) { (finish) in
-            if finish {
-                let indexPath = IndexPath(item: self.assets.count - 1, section: 0)
-                self.collectionView.scrollToItem(at:indexPath , at: .bottom, animated: false)
-            }
-        }
     }
     
     override func viewDidLayoutSubviews() {

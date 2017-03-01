@@ -16,6 +16,7 @@ class EditImageViewController: BaseViewController {
     // 图片
     lazy var imageView: UIImageView = {
         let _imageView = UIImageView(frame: CGRect(x: 0, y: 0, width: UIScreen.main.bounds.size.width, height: UIScreen.main.bounds.size.height * self.imageAndScreenHeightRatio))
+        _imageView.isUserInteractionEnabled = true
         _imageView.contentMode = .scaleAspectFit
         _imageView.backgroundColor = UIColor.colorWithHexString(hex: "#2c2e30")
         return _imageView
@@ -23,7 +24,7 @@ class EditImageViewController: BaseViewController {
     
     // 遮罩层
     lazy var grayView: GrayView = {
-        let _grayView = GrayView(frame: CGRect.zero)
+        let _grayView = GrayView(frame: CGRect(x: 0, y: 0, width: UIScreen.main.bounds.size.width, height: UIScreen.main.bounds.size.height * self.imageAndScreenHeightRatio))
         return _grayView
     }()
     
@@ -107,11 +108,11 @@ class EditImageViewController: BaseViewController {
     }()
     
     // 比例选择列表
-    lazy var scaleSelectionView: ScaleSelectionView = {
-        let _scaleSelectionView = ScaleSelectionView(frame: CGRect.zero)
-        _scaleSelectionView.translatesAutoresizingMaskIntoConstraints = false
-        _scaleSelectionView.delegate = self
-        return _scaleSelectionView
+    lazy var ratioSelectionView: RatioSelectionView = {
+        let _ratioSelectionView = RatioSelectionView(frame: CGRect.zero)
+        _ratioSelectionView.translatesAutoresizingMaskIntoConstraints = false
+        _ratioSelectionView.delegate = self
+        return _ratioSelectionView
     }()
     
     // 尺寸调整View
@@ -125,21 +126,27 @@ class EditImageViewController: BaseViewController {
         super.viewDidLoad()
         self.view.backgroundColor = UIColor.colorWithHexString(hex: "#2c2e30")
         self.imageView.image = self.image
+        self.imageView.addSubview(self.grayView)
         self.imageView.addSubview(self.resizableView)
         self.view.addSubview(self.imageView)
-        self.imageView.addSubview(self.grayView)
         
         self.view.addSubview(self.bottomView)
         self.bottomView.addSubview(self.operationView)
         self.operationView.addSubview(self.resetButton)
         self.operationView.addSubview(self.cutButton)
-        self.operationView.addSubview(self.scaleSelectionView)
+        self.operationView.addSubview(self.ratioSelectionView)
         
         self.bottomView.addSubview(self.menuBar)
         self.menuBar.addSubview(self.cancelButton)
         self.menuBar.addSubview(self.confirmButton)
         
         self.view.setNeedsUpdateConstraints()
+        
+        self.resizableView.addObserver(self, forKeyPath: "frame", options: .new, context: nil)
+    }
+    
+    deinit {
+        self.resizableView.removeObserver(self, forKeyPath: "frame")
     }
     
     override func viewWillAppear(_ animated: Bool) {
@@ -183,8 +190,8 @@ class EditImageViewController: BaseViewController {
         self.operationView.addConstraints(operationCutButtonVConstraints)
         
         // selectionView
-        let selectionViewHConstraints = NSLayoutConstraint.constraints(withVisualFormat: "H:|-0-[selectionView]-0-|", options: NSLayoutFormatOptions(rawValue:0), metrics: nil, views: ["selectionView": self.scaleSelectionView])
-        let selectionViewVConstraints = NSLayoutConstraint.constraints(withVisualFormat: "V:|-10-[selectionView]-10-[resetButton]", options: NSLayoutFormatOptions(rawValue:0), metrics: nil, views: ["selectionView": self.scaleSelectionView, "resetButton": self.resetButton])
+        let selectionViewHConstraints = NSLayoutConstraint.constraints(withVisualFormat: "H:|-0-[selectionView]-0-|", options: NSLayoutFormatOptions(rawValue:0), metrics: nil, views: ["selectionView": self.ratioSelectionView])
+        let selectionViewVConstraints = NSLayoutConstraint.constraints(withVisualFormat: "V:|-10-[selectionView]-10-[resetButton]", options: NSLayoutFormatOptions(rawValue:0), metrics: nil, views: ["selectionView": self.ratioSelectionView, "resetButton": self.resetButton])
         self.operationView.addConstraints(selectionViewHConstraints)
         self.operationView.addConstraints(selectionViewVConstraints)
         
@@ -225,18 +232,27 @@ class EditImageViewController: BaseViewController {
     func cutButtonClicked(sender: UIButton) -> Void {
         
     }
+    
+    override func observeValue(forKeyPath keyPath: String?, of object: Any?, change: [NSKeyValueChangeKey : Any]?, context: UnsafeMutableRawPointer?) {
+        if keyPath == "frame" {
+            let frame = change?[NSKeyValueChangeKey.newKey] as! CGRect
+            self.grayView.centerFrame = frame
+            self.grayView.setNeedsDisplay()
+            self.resizableView.gridBorderView.setNeedsDisplay()
+        }
+    }
 }
 
-extension EditImageViewController: ScaleSelectionViewDelegate {
-    func scaleSelected(scaleType: ScaleType) {
-        self.resizableView.setCenterImageHidden(hidden: scaleType != .scale_free)
+extension EditImageViewController: RatioSelectionViewDelegate {
+    func ratioSelected(ratioType: RatioType) {
+        self.resizableView.setCenterImageHidden(hidden: ratioType != .ratio_free)
         self.resizableView.isHidden = false
         // 缩小后的图片像素尺寸
-        let scaleSize = scaleType.scaleDownInSize(originSize: (self.image?.size)!)
-        self.resizableView.sizeLabel.text = "\(Int(scaleSize.width)) * \(Int(scaleSize.height))"
+        let ratioSize = ratioType.ratioDownInSize(originSize: (self.image?.size)!)
+        self.resizableView.sizeLabel.text = "\(Int(ratioSize.width)) * \(Int(ratioSize.height))"
         
         // 缩小后的图片比例
-        let scale = scaleSize.width / scaleSize.height
+        let scale = ratioSize.width / ratioSize.height
         
         // 原始图片View的尺寸
         let originImageScale = (self.image?.size.width)!/(self.image?.size.height)!
@@ -251,8 +267,9 @@ extension EditImageViewController: ScaleSelectionViewDelegate {
         else {
             imageSizeInView = CGSize(width: imageViewSize.height * originImageScale, height: imageViewSize.height)
         }
+        let imageOriginInView = CGPoint(x: (self.imageView.frame.size.width - imageSizeInView.width)/2, y: (self.imageView.frame.size.height - imageSizeInView.height)/2)
         
-        // 按照图片在View中的大小截取图片
+        // 按照比例在View中的大小截取图片
         var imageSizeAfterScaleDown = imageSizeInView
         if originImageScale <= scale {
             imageSizeAfterScaleDown = CGSize(width: imageSizeInView.width, height: imageSizeInView.width / scale)
@@ -264,9 +281,11 @@ extension EditImageViewController: ScaleSelectionViewDelegate {
         // 计算resizeView.frame
         let newOrigin = CGPoint(x: (self.imageView.frame.size.width - imageSizeAfterScaleDown.width)/2, y: (self.imageView.frame.size.height - imageSizeAfterScaleDown.height)/2)
         let resizeFrame = CGRect(origin: newOrigin, size: imageSizeAfterScaleDown)
+        
+        let imageRectInView = CGRect(origin: imageOriginInView, size: imageSizeInView)
+        self.resizableView.imageBounds = imageRectInView
+        
         self.resizableView.frame = resizeFrame
-        self.grayView.centerFrame = resizeFrame
-        self.grayView.setNeedsDisplay()
-        self.resizableView.gridBorderView.setNeedsDisplay()
+        self.resizableView.translationRatio = ratioType
     }
 }

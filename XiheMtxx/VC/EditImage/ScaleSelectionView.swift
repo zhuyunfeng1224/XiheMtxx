@@ -8,55 +8,55 @@
 
 import UIKit
 
-enum ScaleType: Int {
-    case scale_free
-    case scale_1_1
-    case scale_2_3
-    case scale_3_2
-    case scale_3_4
-    case scale_4_3
-    case scale_9_16
-    case scale_16_9
+enum RatioType: Int {
+    case ratio_free
+    case ratio_1_1
+    case ratio_2_3
+    case ratio_3_2
+    case ratio_3_4
+    case ratio_4_3
+    case ratio_9_16
+    case ratio_16_9
     
-    func info() -> (scale: CGSize, title: String, normalImage: String, highlightImage: String) {
-        if self == .scale_1_1 {
+    func info() -> (aspectRatio: CGSize, title: String, normalImage: String, highlightImage: String) {
+        if self == .ratio_1_1 {
             
             return (CGSize(width: 1, height: 1),
                     "1:1",
                     "icon_meihua_scale_1-1_normal_30x30_",
                     "icon_meihua_scale_1-1_highlighted_30x30_")
         }
-        else if self == .scale_2_3 {
+        else if self == .ratio_2_3 {
             return (CGSize(width: 2, height: 3),
                     "2:3",
                     "icon_meihua_scale_2-3_normal_30x30_",
                     "icon_meihua_scale_2-3_highlighted_30x30_")
         }
-        else if self == .scale_3_2 {
+        else if self == .ratio_3_2 {
             return (CGSize(width: 3, height: 2),
                     "3:2",
                     "icon_meihua_scale_3-2_normal_30x30_",
                     "icon_meihua_scale_3-2_highlighted_30x30_")
         }
-        else if self == .scale_3_4 {
+        else if self == .ratio_3_4 {
             return (CGSize(width: 3, height: 4),
                     "3:4",
                     "icon_meihua_scale_3-4_normal_30x30_",
                     "icon_meihua_scale_3-4_highlighted_30x30_")
         }
-        else if self == .scale_4_3 {
+        else if self == .ratio_4_3 {
             return (CGSize(width: 4, height: 3),
                     "4:3",
                     "icon_meihua_scale_4-3_normal_30x30_",
                     "icon_meihua_scale_4-3_highlighted_30x30_")
         }
-        else if self == .scale_9_16 {
+        else if self == .ratio_9_16 {
             return (CGSize(width: 9, height: 16),
                     "9:16",
                     "icon_meihua_scale_9-16_normal_30x30_",
                     "icon_meihua_scale_9-16_highlighted_30x30_")
         }
-        else if self == .scale_16_9 {
+        else if self == .ratio_16_9 {
             return (CGSize(width: 16, height: 9),
                     "16:9",
                     "icon_meihua_scale_16-9_normal_30x30_",
@@ -71,25 +71,25 @@ enum ScaleType: Int {
     }
     
     // 按比例缩小
-    func scaleDownInSize(originSize: CGSize) -> CGSize {
-        let scaleSize = self.info().scale
-        let scale = scaleSize.width / scaleSize.height
-        if (originSize.width / originSize.height) > scale {
-            return CGSize(width: originSize.height * scale, height: originSize.height)
+    func ratioDownInSize(originSize: CGSize) -> CGSize {
+        let scaleSize = self.info().aspectRatio
+        let ratio = scaleSize.width / scaleSize.height
+        if (originSize.width / originSize.height) > ratio {
+            return CGSize(width: originSize.height * ratio, height: originSize.height)
 
         }
-        return CGSize(width: originSize.width, height: originSize.width / scale)
+        return CGSize(width: originSize.width, height: originSize.width / ratio)
     }
 }
 
-protocol ScaleSelectionViewDelegate: NSObjectProtocol {
-    func scaleSelected(scaleType: ScaleType) -> Void
+protocol RatioSelectionViewDelegate: NSObjectProtocol {
+    func ratioSelected(ratioType: RatioType) -> Void
 }
 
-class ScaleSelectionView: UIView {
+class RatioSelectionView: UIView {
     
     var selectIndex: Int = 0
-    weak var delegate: ScaleSelectionViewDelegate?
+    weak var delegate: RatioSelectionViewDelegate?
     
     lazy var collectionView: UICollectionView = {
         let flowLayout = UICollectionViewFlowLayout()
@@ -131,13 +131,13 @@ class ScaleSelectionView: UIView {
     }
 }
 
-extension ScaleSelectionView: UICollectionViewDataSource, UICollectionViewDelegate {
+extension RatioSelectionView: UICollectionViewDataSource, UICollectionViewDelegate {
     @available(iOS 6.0, *)
     public func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
         let cell: ScaleSelectionCollectionViewCell = collectionView.dequeueReusableCell(withReuseIdentifier: String(describing: ScaleSelectionCollectionViewCell.self), for: indexPath) as! ScaleSelectionCollectionViewCell
         
-        let scaleType = ScaleType(rawValue: indexPath.row)
-        let info = scaleType?.info()
+        let ratioType = RatioType(rawValue: indexPath.row)
+        let info = ratioType?.info()
         
         cell.itemButton.setImage(UIImage(named:info!.normalImage), for: .normal)
         cell.itemButton.setImage(UIImage(named:info!.highlightImage), for: .highlighted)
@@ -170,6 +170,6 @@ extension ScaleSelectionView: UICollectionViewDataSource, UICollectionViewDelega
     func itemSelect(atIndex index: Int) -> Void {
         self.selectIndex = index
         collectionView.reloadData()
-        self.delegate?.scaleSelected(scaleType: ScaleType(rawValue: self.selectIndex)!)
+        self.delegate?.ratioSelected(ratioType: RatioType(rawValue: self.selectIndex)!)
     }
 }
