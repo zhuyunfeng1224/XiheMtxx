@@ -35,6 +35,7 @@
 		5FF90DF51E5FDCBF00ABF726 /* GrayView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5FF90DF21E5FDCBF00ABF726 /* GrayView.swift */; };
 		5FF90DF61E5FDCBF00ABF726 /* GridBorderView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5FF90DF31E5FDCBF00ABF726 /* GridBorderView.swift */; };
 		5FF90DF71E5FDCBF00ABF726 /* UserResizableView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5FF90DF41E5FDCBF00ABF726 /* UserResizableView.swift */; };
+		5FF90DFA1E694F9400ABF726 /* RotateCtrlView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5FF90DF91E694F9400ABF726 /* RotateCtrlView.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -90,6 +91,7 @@
 		5FF90DF21E5FDCBF00ABF726 /* GrayView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = GrayView.swift; sourceTree = "<group>"; };
 		5FF90DF31E5FDCBF00ABF726 /* GridBorderView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = GridBorderView.swift; sourceTree = "<group>"; };
 		5FF90DF41E5FDCBF00ABF726 /* UserResizableView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = UserResizableView.swift; sourceTree = "<group>"; };
+		5FF90DF91E694F9400ABF726 /* RotateCtrlView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = RotateCtrlView.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -224,6 +226,7 @@
 				5FF90DD71E5E88F900ABF726 /* EditImageViewController.swift */,
 				5FF90DD81E5E88F900ABF726 /* ScaleSelectionCollectionViewCell.swift */,
 				5FF90DD91E5E88F900ABF726 /* ScaleSelectionView.swift */,
+				5FF90DF91E694F9400ABF726 /* RotateCtrlView.swift */,
 			);
 			path = EditImage;
 			sourceTree = "<group>";
@@ -383,6 +386,7 @@
 				5FF90DC51E5DA1CA00ABF726 /* MainNavigationViewController.swift in Sources */,
 				5FF90DE91E5E895500ABF726 /* ToolBarItem.swift in Sources */,
 				5FF90DF61E5FDCBF00ABF726 /* GridBorderView.swift in Sources */,
+				5FF90DFA1E694F9400ABF726 /* RotateCtrlView.swift in Sources */,
 				5FF90DE31E5E88FA00ABF726 /* PhotoAlbumTableViewCell.swift in Sources */,
 				5FF90DED1E5EBB5700ABF726 /* PresentCustomTransitionAnimator.swift in Sources */,
 				5FF90DE71E5E88FA00ABF726 /* PhotoBaseViewController.swift in Sources */,

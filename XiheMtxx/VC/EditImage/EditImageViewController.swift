@@ -14,6 +14,8 @@ class EditImageViewController: BaseViewController {
     var image: UIImage?
     // imageView占屏幕高度的比例
     let imageAndScreenHeightRatio: CGFloat = 0.7
+    // 底部menuBar高度
+    let menuBarHeight: CGFloat = 50
     // 图片在ImageView中的位置
     var imageRectInImageView: CGRect = CGRect.zero
     // 编辑之后的图片实际位置，以像素为单位
@@ -103,6 +105,83 @@ class EditImageViewController: BaseViewController {
         _cutResizableView.isHidden = true
         _cutResizableView.delegate = self
         return _cutResizableView
+    }()
+    
+    // 旋转图片展示View
+    lazy var rotateCtrlView: RotateCtrlView = {
+        let _rotateCtrlView = RotateCtrlView(frame: CGRect(x: 0, y: 0, width: UIScreen.main.bounds.size.width, height: UIScreen.main.bounds.size.height * self.imageAndScreenHeightRatio))
+        _rotateCtrlView.alpha = 0
+        return _rotateCtrlView
+    }()
+    
+    // MARK: - Rotate View
+    
+    lazy var rotateOperationView: UIView = {
+        let _rotateOperationView = UIView(frame: CGRect.zero)
+        _rotateOperationView.backgroundColor = UIColor.white.withAlphaComponent(0.95)
+        _rotateOperationView.translatesAutoresizingMaskIntoConstraints = false
+        _rotateOperationView.isHidden = true
+        return _rotateOperationView
+    }()
+    
+    // 旋转重置按钮
+    lazy var rotateResetButton: UIButton = {
+        let _rotateResetButton = UIButton(frame: CGRect.zero)
+        _rotateResetButton.setTitle("重置", for: .normal)
+        _rotateResetButton.setTitleColor(UIColor.white, for: .normal)
+        _rotateResetButton
+            .setBackgroundImage(UIImage(named:"btn_60_gray_normal_36x30_"), for: .normal)
+        _rotateResetButton
+            .setBackgroundImage(UIImage(named:"btn_60_gray_disabled_36x30_"), for: .disabled)
+        _rotateResetButton.titleLabel?.font = UIFont.systemFont(ofSize: 14)
+        _rotateResetButton.isEnabled = false
+        _rotateResetButton.translatesAutoresizingMaskIntoConstraints = false
+        _rotateResetButton.addTarget(self, action: #selector(rotateResetButtonClicked(sender:)), for: .touchUpInside)
+        return _rotateResetButton
+    }()
+    
+    // 向左旋转按钮
+    lazy var rotateLeftButton: UIButton = {
+        let _rotateLeftButton = UIButton(frame: CGRect.zero)
+        _rotateLeftButton.setImage(UIImage(named:"icon_meihua_edit_rotate_left_normal_30x30_"), for: .normal)
+        _rotateLeftButton.setImage(UIImage(named:"icon_meihua_edit_rotate_left_highlighted_30x30_"), for: .highlighted)
+        _rotateLeftButton.addTarget(self, action: #selector(rotateLeftButtonClicked(sender:)), for: .touchUpInside)
+        _rotateLeftButton.translatesAutoresizingMaskIntoConstraints = false
+        return _rotateLeftButton
+    }()
+    
+    // 向右旋转按钮
+    lazy var rotateRightButton: UIButton = {
+        let _rotateRightButton = UIButton(frame: CGRect.zero)
+        _rotateRightButton.setImage(UIImage(named:"icon_meihua_edit_rotate_right_normal_30x30_"), for: .normal)
+        _rotateRightButton.setImage(UIImage(named:"icon_meihua_edit_rotate_right_highlighted_30x30_"), for: .highlighted)
+        _rotateRightButton.addTarget(self, action: #selector(rotateRightButtonClicked(sender:)), for: .touchUpInside)
+        _rotateRightButton.translatesAutoresizingMaskIntoConstraints = false
+        return _rotateRightButton
+    }()
+    
+    // 水平向右反转按钮
+    lazy var rotateHorizontalButton: UIButton = {
+        let _rotateHorizontalButton = UIButton(frame: CGRect.zero)
+        _rotateHorizontalButton
+            .setImage(UIImage(named:"icon_meihua_edit_rotate_horizontal_normal_30x30_"), for: .normal)
+        _rotateHorizontalButton
+            .setImage(UIImage(named:"icon_meihua_edit_rotate_horizontal_highlighted_30x30_"), for: .highlighted)
+        _rotateHorizontalButton.addTarget(self, action: #selector(rotateRightButtonClicked(sender:)), for: .touchUpInside)
+        _rotateHorizontalButton.translatesAutoresizingMaskIntoConstraints = false
+        return _rotateHorizontalButton
+    }()
+    
+    // 水平向下反转按钮
+    lazy var rotateVerticalButton: UIButton = {
+        let _rotateVerticalButton = UIButton(frame: CGRect.zero)
+        _rotateVerticalButton
+            .setImage(UIImage(named:"icon_meihua_edit_rotate_vertical_normal_30x30_"), for: .normal)
+        _rotateVerticalButton
+            .setImage(UIImage(named:"icon_meihua_edit_rotate_vertical_highlighted_30x30_"), for: .highlighted)
+        _rotateVerticalButton.addTarget(self, action: #selector(rotateRightButtonClicked(sender:)), for: .touchUpInside)
+        _rotateVerticalButton.translatesAutoresizingMaskIntoConstraints = false
+        return _rotateVerticalButton
     }()
     
     // MARK: - Menu
@@ -210,6 +289,13 @@ class EditImageViewController: BaseViewController {
         self.menuBar.addSubview(self.cancelButton)
         self.menuBar.addSubview(self.confirmButton)
         
+        self.bottomView.addSubview(self.rotateOperationView)
+        self.rotateOperationView.addSubview(self.rotateResetButton)
+        self.rotateOperationView.addSubview(self.rotateLeftButton)
+        self.rotateOperationView.addSubview(self.rotateRightButton)
+        self.rotateOperationView.addSubview(self.rotateHorizontalButton)
+        self.rotateOperationView.addSubview(self.rotateVerticalButton)
+        
         self.view.setNeedsUpdateConstraints()
         
         self.cutResizableView.addObserver(self, forKeyPath: "frame", options: .new, context: nil)
@@ -238,11 +324,8 @@ class EditImageViewController: BaseViewController {
         self.view.addConstraints(bottomViewHConstraints)
         self.view.addConstraints(bottomViewVConstraints)
         
-        // menuBar
-        let menuBarHConstraints = NSLayoutConstraint.constraints(withVisualFormat: "H:|-0-[menuBar]-0-|", options: NSLayoutFormatOptions(rawValue:0), metrics: nil, views: ["menuBar": self.menuBar])
-        let menuBarVConstraints = NSLayoutConstraint.constraints(withVisualFormat: "V:[menuBar(==50)]-0-|", options: NSLayoutFormatOptions(rawValue:0), metrics: nil, views: ["menuBar": self.menuBar])
-        self.view.addConstraints(menuBarHConstraints)
-        self.view.addConstraints(menuBarVConstraints)
+        
+        // ------------------------------cutOperationView-------------------
         
         // cutOperationView
         let operationHConstraints = NSLayoutConstraint.constraints(withVisualFormat: "H:|-0-[cutOperationView]-0-|", options: NSLayoutFormatOptions(rawValue:0), metrics: nil, views: ["cutOperationView": self.cutOperationView])
@@ -252,7 +335,7 @@ class EditImageViewController: BaseViewController {
         self.view.addConstraints(operationVConstraints)
         
         // cutResetButton and cutButton
-        let operationButtonsHContraints = NSLayoutConstraint.constraints(withVisualFormat: "H:|-10-[cutResetButton(==60)]->=0-[cutButton(==90)]-10-|", options: NSLayoutFormatOptions(rawValue:0), metrics: nil, views: ["cutResetButton": self.cutResetButton, "cutButton": self.cutConfirmButton])
+        let operationButtonsHContraints = NSLayoutConstraint.constraints(withVisualFormat: "H:|-10-[cutResetButton(==60)]->=0-[cutButton(==100)]-10-|", options: NSLayoutFormatOptions(rawValue:0), metrics: nil, views: ["cutResetButton": self.cutResetButton, "cutButton": self.cutConfirmButton])
         let operationResetButtonVConstraints = NSLayoutConstraint.constraints(withVisualFormat: "V:[cutResetButton(==30)]-10-|", options: NSLayoutFormatOptions(rawValue:0), metrics: nil, views: ["cutResetButton": self.cutResetButton])
         let operationCutButtonVConstraints = NSLayoutConstraint.constraints(withVisualFormat: "V:[cutButton(==30)]-10-|", options: NSLayoutFormatOptions(rawValue:0), metrics: nil, views: ["cutButton": self.cutConfirmButton])
         self.cutOperationView.addConstraints(operationButtonsHContraints)
@@ -265,12 +348,47 @@ class EditImageViewController: BaseViewController {
         self.cutOperationView.addConstraints(selectionViewHConstraints)
         self.cutOperationView.addConstraints(selectionViewVConstraints)
         
+        // ------------------------- rotateOperationView -------------------
+        
+        // rotateOperationView
+        let rotateOperationHConstraints = NSLayoutConstraint.constraints(withVisualFormat: "H:|-0-[rotateOperationView]-0-|", options: NSLayoutFormatOptions(rawValue:0), metrics: nil, views: ["rotateOperationView": self.rotateOperationView])
+        let rotateOperationVConstraints = NSLayoutConstraint.constraints(withVisualFormat: "V:|-0-[rotateOperationView]-0-[menuBar]", options: NSLayoutFormatOptions(rawValue:0), metrics:nil, views: ["rotateOperationView": self.rotateOperationView, "menuBar": self.menuBar])
+        self.view.addConstraints(rotateOperationHConstraints)
+        self.view.addConstraints(rotateOperationVConstraints)
+        
+        let rotateOperationButtonsHContraints = NSLayoutConstraint.constraints(withVisualFormat: "H:|-15-[rotateResetButton(==60)]->=20-[rotateLeftButton(==30)]-25-[rotateRightButton(==30)]-25-[rotateHorizontalButton(==30)]-25-[rotateVerticalButton(==30)]-15-|", options: NSLayoutFormatOptions(rawValue:0), metrics: nil, views: ["rotateResetButton": self.rotateResetButton, "rotateLeftButton": self.rotateLeftButton, "rotateRightButton" : self.rotateRightButton, "rotateHorizontalButton" : self.rotateHorizontalButton, "rotateVerticalButton": self.rotateVerticalButton])
+        
+        let bottom = (UIScreen.main.bounds.height * (1 - self.imageAndScreenHeightRatio) - self.menuBarHeight) / 2 - 15
+        let rotateResetButtonVConstraints = NSLayoutConstraint.constraints(withVisualFormat: "V:[rotateResetButton(==30)]-bottom-|", options: NSLayoutFormatOptions(rawValue:0), metrics: ["bottom": bottom], views: ["rotateResetButton": self.rotateResetButton])
+        
+        let rotateRightButtonVConstraints = NSLayoutConstraint.constraints(withVisualFormat: "V:[rotateRightButton(==30)]-bottom-|", options: NSLayoutFormatOptions(rawValue:0), metrics: ["bottom": bottom], views: ["rotateRightButton": self.rotateRightButton])
+        
+        let rotateLeftButtonVConstraints = NSLayoutConstraint.constraints(withVisualFormat: "V:[rotateLeftButton(==30)]-bottom-|", options: NSLayoutFormatOptions(rawValue:0), metrics: ["bottom": bottom], views: ["rotateLeftButton": self.rotateLeftButton])
+        
+        let rotateHorizontalButtonVConstraints = NSLayoutConstraint.constraints(withVisualFormat: "V:[rotateHorizontalButton(==30)]-bottom-|", options: NSLayoutFormatOptions(rawValue:0), metrics: ["bottom": bottom], views: ["rotateHorizontalButton": self.rotateHorizontalButton])
+        
+        let rotateVerticalButtonVConstraints = NSLayoutConstraint.constraints(withVisualFormat: "V:[rotateVerticalButton(==30)]-bottom-|", options: NSLayoutFormatOptions(rawValue:0), metrics: ["bottom": bottom], views: ["rotateVerticalButton": self.rotateVerticalButton])
+        self.rotateOperationView.addConstraints(rotateOperationButtonsHContraints)
+        self.rotateOperationView.addConstraints(rotateResetButtonVConstraints)
+        self.rotateOperationView.addConstraints(rotateLeftButtonVConstraints)
+        self.rotateOperationView.addConstraints(rotateRightButtonVConstraints)
+        self.rotateOperationView.addConstraints(rotateHorizontalButtonVConstraints)
+        self.rotateOperationView.addConstraints(rotateVerticalButtonVConstraints)
+        
+        // ---------------------------menuBar----------------------------
+        
         // cancelButton and confirmButton
         let cancelAndConfirmButtonsHContraints = NSLayoutConstraint.constraints(withVisualFormat: "H:|-10-[cancelButton(==50)]-30-[cutMenuButton(==50)]->=0-[rotateMenuButton(==50)]-30-[confirmButton(==50)]-10-|", options: NSLayoutFormatOptions(rawValue:0), metrics: nil, views: ["cancelButton": self.cancelButton, "confirmButton": self.confirmButton, "cutMenuButton": self.cutMenuButton, "rotateMenuButton": self.rotateMenuButton])
         let cancelButtonVConstraints = NSLayoutConstraint.constraints(withVisualFormat: "V:|-0-[cancelButton]-0-|", options: NSLayoutFormatOptions(rawValue:0), metrics: nil, views: ["cancelButton": self.cancelButton])
         let confirmButtonVConstraints = NSLayoutConstraint.constraints(withVisualFormat: "V:|-0-[confirmButton]-0-|", options: NSLayoutFormatOptions(rawValue:0), metrics: nil, views: ["confirmButton": self.confirmButton])
         let cutMenuButtonVConstraints = NSLayoutConstraint.constraints(withVisualFormat: "V:|-0-[cutMenuButton]-0-|", options: NSLayoutFormatOptions(rawValue:0), metrics: nil, views: ["cutMenuButton": self.cutMenuButton])
         let rotateMenuButtonVConstraints = NSLayoutConstraint.constraints(withVisualFormat: "V:|-0-[rotateMenuButton]-0-|", options: NSLayoutFormatOptions(rawValue:0), metrics: nil, views: ["rotateMenuButton": self.rotateMenuButton])
+        
+        // menuBar
+        let menuBarHConstraints = NSLayoutConstraint.constraints(withVisualFormat: "H:|-0-[menuBar]-0-|", options: NSLayoutFormatOptions(rawValue:0), metrics: nil, views: ["menuBar": self.menuBar])
+        let menuBarVConstraints = NSLayoutConstraint.constraints(withVisualFormat: "V:[menuBar(==menuBarHeight)]-0-|", options: NSLayoutFormatOptions(rawValue:0), metrics: ["menuBarHeight": self.menuBarHeight], views: ["menuBar": self.menuBar])
+        self.view.addConstraints(menuBarHConstraints)
+        self.view.addConstraints(menuBarVConstraints)
         
         self.menuBar.addConstraints(cancelAndConfirmButtonsHContraints)
         self.menuBar.addConstraints(cancelButtonVConstraints)
@@ -303,7 +421,20 @@ class EditImageViewController: BaseViewController {
         self.cutMenuButton.isSelected = true
         self.rotateMenuButton.isSelected = false
         self.cutResizableView.isHidden = false
-        self.grayView.centerFrame = self.cutResizableView.frame
+        self.grayView.clearFrame = self.cutResizableView.frame
+        
+        
+        UIView.animate(withDuration: 0.2, animations: { 
+            self.cutOperationView.alpha = 1
+            self.rotateOperationView.alpha = 0
+            self.rotateCtrlView.alpha = 0
+        }) { (finished) in
+            if finished {
+                self.cutOperationView.isHidden = false
+                self.rotateOperationView.isHidden = true
+                self.rotateCtrlView.removeFromSuperview()
+            }
+        }
     }
     
     // 旋转菜单按钮点击
@@ -311,9 +442,23 @@ class EditImageViewController: BaseViewController {
         self.rotateMenuButton.isSelected = true
         self.cutMenuButton.isSelected = false
         self.cutResizableView.isHidden = true
-        self.grayView.centerFrame = self.imageRectInImageView
+        self.grayView.clearFrame = self.imageRectInImageView
+        self.view.addSubview(self.rotateCtrlView)
+        self.rotateCtrlView.frame = self.imageRectInImageView
+        self.rotateCtrlView.imageView.image = self.image
+        
+        UIView.animate(withDuration: 0.2, animations: {
+            self.rotateCtrlView.alpha = 1
+            self.cutOperationView.alpha = 0
+            self.rotateOperationView.alpha = 1
+        }) { (finished) in
+            if finished {
+                self.cutOperationView.isHidden = true
+                self.rotateOperationView.isHidden = false
+            }
+        }
     }
-    
+   
     // 重置按钮点击
     func cutResetButtonClicked(sender: UIButton) -> Void {
         self.image = self.originImage
@@ -325,13 +470,17 @@ class EditImageViewController: BaseViewController {
     
     // 裁剪按钮点击
     func cutButtonClicked(sender: UIButton) -> Void {
-        let cgImage = self.image?.cgImage?.cropping(to: self.imageRectForPixelsAfterEdited)
+        let imgRef = self.image?.cgImage?.cropping(to: self.imageRectForPixelsAfterEdited)
         let cropImageSize = self.imageRectForPixelsAfterEdited.size
         
         // 使用UIKit方法绘制图片，防止图片倒置
         UIGraphicsBeginImageContext(cropImageSize)
-        let cropImage = UIImage(cgImage: cgImage!)
-        cropImage.draw(in: CGRect(origin: CGPoint.zero, size: cropImageSize))
+        
+        let context = UIGraphicsGetCurrentContext()
+        context?.ctm.translatedBy(x: 0, y: cropImageSize.height)
+        context?.ctm.scaledBy(x: 1, y: -1)
+        context?.draw(imgRef!, in:  CGRect(origin: CGPoint.zero, size: cropImageSize))
+        
         let image = UIGraphicsGetImageFromCurrentImageContext()
         UIGraphicsEndImageContext()
         
@@ -341,10 +490,35 @@ class EditImageViewController: BaseViewController {
         self.cutConfirmButton.isEnabled = false
     }
     
+    // 旋转重置按钮
+    func rotateResetButtonClicked(sender: UIButton) -> Void {
+        
+    }
+    
+    // 向左旋转按钮
+    func rotateLeftButtonClicked(sender: UIButton) -> Void {
+        
+    }
+    
+    // 向右旋转按钮
+    func rotateRightButtonClicked(sender: UIButton) -> Void {
+        
+    }
+    
+    // 向右反转按钮
+    func rotateHorizontalButtonClicked(sender: UIButton) -> Void {
+        
+    }
+    
+    // 向下反转按钮
+    func rotateVerticalButtonClicked(sender: UIButton) -> Void {
+        
+    }
+    
     override func observeValue(forKeyPath keyPath: String?, of object: Any?, change: [NSKeyValueChangeKey : Any]?, context: UnsafeMutableRawPointer?) {
         if keyPath == "frame" {
             let frame = change?[NSKeyValueChangeKey.newKey] as! CGRect
-            self.grayView.centerFrame = frame
+            self.grayView.clearFrame = frame
             self.cutResizableView.gridBorderView.setNeedsDisplay()
             
             // 缩小后的图片像素尺寸

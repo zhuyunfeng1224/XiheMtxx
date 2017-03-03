@@ -159,48 +159,48 @@ class UserResizableView: UIView {
     }
     
     // 扩大各个角拖动的热点
-    override func hitTest(_ point: CGPoint, with event: UIEvent?) -> UIView? {
-        if self.isHidden {
-            return nil
-        }
-        
-        if self.leftBottomCorner.frame.contains(point) && !self.leftBottomCorner.isHidden {
-            return self.leftBottomCorner
-        }
-        
-        if self.leftTopCorner.frame.contains(point) && !self.leftTopCorner.isHidden {
-            return self.leftTopCorner
-        }
-        
-        if self.leftCenterCorner.frame.contains(point) && !self.leftCenterCorner.isHidden {
-            return self.leftCenterCorner
-        }
-        
-        if self.centerTopCorner.frame.contains(point) && !self.centerTopCorner.isHidden {
-            return self.centerTopCorner
-        }
-        
-        if self.centerBottomCorner.frame.contains(point) && !self.centerBottomCorner.isHidden {
-            return self.centerBottomCorner
-        }
-        
-        if self.rightTopCorner.frame.contains(point) && !self.rightTopCorner.isHidden {
-            return self.rightTopCorner
-        }
-        
-        if self.rightCenterCorner.frame.contains(point) && !self.rightCenterCorner.isHidden {
-            return self.rightCenterCorner
-        }
-        
-        if self.rightBottomCorner.frame.contains(point) && !self.rightBottomCorner.isHidden {
-            return self.rightBottomCorner
-        }
-       
-        if self.gridBorderView.frame.contains(point) && !self.gridBorderView.isHidden {
-            return self.gridBorderView
-        }
-        return self
-    }
+//    override func hitTest(_ point: CGPoint, with event: UIEvent?) -> UIView? {
+//        if self.isHidden {
+//            return super.hitTest(point, with: event)
+//        }
+//        
+//        if self.leftBottomCorner.frame.contains(point) && !self.leftBottomCorner.isHidden {
+//            return self.leftBottomCorner
+//        }
+//        
+//        if self.leftTopCorner.frame.contains(point) && !self.leftTopCorner.isHidden {
+//            return self.leftTopCorner
+//        }
+//        
+//        if self.leftCenterCorner.frame.contains(point) && !self.leftCenterCorner.isHidden {
+//            return self.leftCenterCorner
+//        }
+//        
+//        if self.centerTopCorner.frame.contains(point) && !self.centerTopCorner.isHidden {
+//            return self.centerTopCorner
+//        }
+//        
+//        if self.centerBottomCorner.frame.contains(point) && !self.centerBottomCorner.isHidden {
+//            return self.centerBottomCorner
+//        }
+//        
+//        if self.rightTopCorner.frame.contains(point) && !self.rightTopCorner.isHidden {
+//            return self.rightTopCorner
+//        }
+//        
+//        if self.rightCenterCorner.frame.contains(point) && !self.rightCenterCorner.isHidden {
+//            return self.rightCenterCorner
+//        }
+//        
+//        if self.rightBottomCorner.frame.contains(point) && !self.rightBottomCorner.isHidden {
+//            return self.rightBottomCorner
+//        }
+//       
+//        if self.gridBorderView.frame.contains(point) && !self.gridBorderView.isHidden {
+//            return self.gridBorderView
+//        }
+//        return self
+//    }
     
     // MARK: Public Method
     // 隐藏中间的图片

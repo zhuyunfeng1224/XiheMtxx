@@ -10,7 +10,7 @@ import UIKit
 
 class GrayView: UIView {
     
-    var centerFrame: CGRect = CGRect.zero {
+    var clearFrame: CGRect = CGRect.zero {
         didSet {
            self.setNeedsDisplay()
         }
@@ -27,6 +27,6 @@ class GrayView: UIView {
     
     override func draw(_ rect: CGRect) {
         let context = UIGraphicsGetCurrentContext()
-        context?.clear(centerFrame)
+        context?.clear(clearFrame)
     }
 }
