@@ -94,9 +94,19 @@ extension PhotoAssetViewController: UICollectionViewDataSource, UICollectionView
             PHCachingImageManager.default().requestImageData(for: asset, options: option, resultHandler: { (data, str, orientation, info) in
                 let mainVC = BeautyCenterViewController()
                 let image = UIImage(data: data!)
-                mainVC.originImage = image
+                mainVC.originImage = self.removeOrientation(image: image!)
                 self.navigationController?.pushViewController(mainVC, animated: true)
             })
         }
+    }
+    
+    // 移除掉原始图片的Orientation
+    func removeOrientation(image: UIImage) -> UIImage {
+        
+        if image.imageOrientation == .up {
+            return image
+        }
+        
+        return UIImage.rotateCameraImageToProperOrientation(imageSource: image)
     }
 }
