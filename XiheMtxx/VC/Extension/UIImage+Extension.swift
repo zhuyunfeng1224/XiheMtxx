@@ -33,7 +33,7 @@ extension UIImage {
             context?.scaleBy(x: -1.0, y:  1.0)
         case .down :
             context?.translateBy(x: imageSize.width, y: imageSize.height)
-            context?.rotate(by: CGFloat(M_PI))
+            context?.rotate(by: CGFloat(Double.pi))
             
         case .downMirrored :
             context?.translateBy(x: 0.0, y: imageSize.height)
@@ -44,7 +44,7 @@ extension UIImage {
             bounds.size.height = bounds.size.width;
             bounds.size.width = storedHeight;
             context?.translateBy(x: 0.0, y: imageSize.width)
-            context?.rotate(by: 3.0 * CGFloat(M_PI) / 2.0)
+            context?.rotate(by: 3.0 * CGFloat(Double.pi) / 2.0)
             
         case .leftMirrored :
             let storedHeight = bounds.size.height
@@ -52,21 +52,21 @@ extension UIImage {
             bounds.size.width = storedHeight;
             context?.translateBy(x: imageSize.height, y: imageSize.width)
             context?.scaleBy(x: -1.0, y: 1.0)
-            context?.rotate(by: 3.0 * CGFloat(M_PI) / 2.0)
+            context?.rotate(by: 3.0 * CGFloat(Double.pi) / 2.0)
             
         case .right :
             let storedHeight = bounds.size.height
             bounds.size.height = bounds.size.width;
             bounds.size.width = storedHeight;
             context?.translateBy(x: imageSize.height, y: 0.0)
-            context?.rotate(by: CGFloat(M_PI) / 2.0)
+            context?.rotate(by: CGFloat(Double.pi) / 2.0)
             
         case .rightMirrored :
             let storedHeight = bounds.size.height
             bounds.size.height = bounds.size.width;
             bounds.size.width = storedHeight;
             context?.scaleBy(x: -1.0, y: 1.0)
-            context?.rotate(by: CGFloat(M_PI) / 2.0)
+            context?.rotate(by: CGFloat(Double.pi) / 2.0)
         }
         
         context?.draw(imgRef!, in: CGRect(x: 0, y: 0, width: width, height: height))
@@ -75,5 +75,38 @@ extension UIImage {
         UIGraphicsEndImageContext();
         
         return imageCopy!
+    }
+    
+    // 剪切图片
+    func clipToRect(rect: CGRect, inRect: CGRect) -> UIImage {
+        
+        // 剪切图片
+        let cropPixelFrame = self.convertToPixelRect(fromRect: rect, inRect: inRect)
+        let cropImageSize = cropPixelFrame.size
+        let imgRef = self.cgImage?.cropping(to: cropPixelFrame)
+        
+        // 使用UIKit方法绘制图片，防止图片倒置
+        UIGraphicsBeginImageContext(cropImageSize)
+        let context = UIGraphicsGetCurrentContext()
+        
+        // 翻转坐标系
+        context?.translateBy(x: 0, y: cropImageSize.height)
+        context?.scaleBy(x: 1.0, y: -1.0)
+        
+        // 画图片，并从context中取出
+        context?.draw(imgRef!, in:  CGRect(origin: CGPoint.zero, size: cropImageSize))
+        let finalImage = UIGraphicsGetImageFromCurrentImageContext()
+        UIGraphicsEndImageContext()
+        
+        return finalImage!
+    }
+    
+    func convertToPixelRect(fromRect rect: CGRect, inRect: CGRect) -> CGRect {
+        let w = round(rect.size.width/inRect.size.width * self.size.width)
+        let h = round(rect.size.height/inRect.size.height * self.size.height)
+        let x = (rect.origin.x - inRect.origin.x) / inRect.size.width * self.size.width
+        let y = (rect.origin.y - inRect.origin.y) / inRect.size.width * self.size.width
+        let pixelRect = CGRect(x: x, y: y, width: w, height: h)
+        return pixelRect
     }
 }

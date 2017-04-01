@@ -18,8 +18,6 @@ class EditImageViewController: BaseViewController {
     let menuBarHeight: CGFloat = 50
     // 图片在ImageView中的位置
     var imageRectInImageView: CGRect = CGRect.zero
-    // 编辑之后的图片实际位置，以像素为单位
-    var imageRectForPixelsAfterEdited: CGRect = CGRect.zero
     
     // 图片
     lazy var imageView: UIImageView = {
@@ -448,7 +446,7 @@ class EditImageViewController: BaseViewController {
         self.grayView.clearFrame = self.imageRectInImageView
         self.view.addSubview(self.rotateCtrlView)
         self.rotateCtrlView.frame = self.imageRectInImageView
-        self.rotateCtrlView.imageView.image = self.image
+        self.rotateCtrlView.originImage = self.image
         
         UIView.animate(withDuration: 0.2, animations: {
             self.rotateCtrlView.alpha = 1
@@ -474,28 +472,9 @@ class EditImageViewController: BaseViewController {
     // 裁剪按钮点击
     func cutButtonClicked(sender: UIButton) -> Void {
         
-        let cutImage = self.image
-        
-        // 剪切图片
-        let cropImageSize = self.imageRectForPixelsAfterEdited.size
-        let imgRef = cutImage?.cgImage?.cropping(to: self.imageRectForPixelsAfterEdited)
-        
-        // 使用UIKit方法绘制图片，防止图片倒置
-        UIGraphicsBeginImageContext(cropImageSize)
-        let context = UIGraphicsGetCurrentContext()
-        
-        // 翻转坐标系
-        context?.translateBy(x: 0, y: cropImageSize.height)
-        context?.scaleBy(x: 1.0, y: -1.0)
-        
-        // 画图片，并从context中取出
-        context?.draw(imgRef!, in:  CGRect(origin: CGPoint.zero, size: cropImageSize))
-        let finalImage = UIGraphicsGetImageFromCurrentImageContext()
-        UIGraphicsEndImageContext()
-        
-        // 页面重新显示剪切后图像
-        self.image = finalImage
-        self.imageView.image = finalImage
+        let cutImage = self.image?.clipToRect(rect: self.cutResizableView.frame, inRect: self.imageRectInImageView)
+        self.image = cutImage
+        self.imageView.image = cutImage
         self.cutRatioSelectionView.itemSelect(atIndex: self.cutRatioSelectionView.selectIndex)
         self.cutConfirmButton.isEnabled = false
     }
@@ -532,12 +511,8 @@ class EditImageViewController: BaseViewController {
             self.cutResizableView.gridBorderView.setNeedsDisplay()
             
             // 缩小后的图片像素尺寸
-            let w = round(self.cutResizableView.frame.size.width/self.imageRectInImageView.size.width * self.image!.size.width)
-            let h = round(self.cutResizableView.frame.size.height/self.imageRectInImageView.size.height * self.image!.size.height)
-            let x = (self.cutResizableView.frame.origin.x - self.imageRectInImageView.origin.x) / self.imageRectInImageView.size.width * self.image!.size.width
-            let y = (self.cutResizableView.frame.origin.y - self.imageRectInImageView.origin.y) / self.imageRectInImageView.size.width * self.image!.size.width
-            self.imageRectForPixelsAfterEdited = CGRect(x: x, y: y, width: w, height: h)
-            self.cutResizableView.sizeLabel.text = "\(Int(w)) × \(Int(h))"
+            let cropPixelFrame = self.image?.convertToPixelRect(fromRect: self.cutResizableView.frame, inRect: self.imageRectInImageView)
+            self.cutResizableView.sizeLabel.text = "\(Int((cropPixelFrame?.size.width)!)) × \(Int((cropPixelFrame?.size.height)!))"
         }
     }
 }
