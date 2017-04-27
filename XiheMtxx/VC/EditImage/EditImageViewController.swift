@@ -11,7 +11,11 @@ import UIKit
 class EditImageViewController: BaseViewController {
     
     var originImage: UIImage?
-    var image: UIImage?
+    var image: UIImage? {
+        didSet {
+            self.imageView.image = image
+        }
+    }
     // imageView占屏幕高度的比例
     let imageAndScreenHeightRatio: CGFloat = 0.7
     // 底部menuBar高度
@@ -24,7 +28,7 @@ class EditImageViewController: BaseViewController {
         let _imageView = UIImageView(frame: CGRect(x: 0, y: 0, width: UIScreen.main.bounds.size.width, height: UIScreen.main.bounds.size.height * self.imageAndScreenHeightRatio))
         _imageView.isUserInteractionEnabled = true
         _imageView.contentMode = .scaleAspectFit
-        _imageView.backgroundColor = UIColor.colorWithHexString(hex: "#2c2e30")
+        _imageView.backgroundColor = UIColor.colorWithHexString(hex: "#3c3c3c")
         return _imageView
     }()
     
@@ -109,6 +113,9 @@ class EditImageViewController: BaseViewController {
     lazy var rotateCtrlView: RotateCtrlView = {
         let _rotateCtrlView = RotateCtrlView(frame: CGRect(x: 0, y: 0, width: UIScreen.main.bounds.size.width, height: UIScreen.main.bounds.size.height * self.imageAndScreenHeightRatio))
         _rotateCtrlView.alpha = 0
+        _rotateCtrlView.dismissCompletation = { image in
+            self.image = image
+        }
         return _rotateCtrlView
     }()
     
@@ -268,10 +275,9 @@ class EditImageViewController: BaseViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
         
-        self.image = self.originImage
-        
         self.view.backgroundColor = UIColor.colorWithHexString(hex: "#2c2e30")
-        self.imageView.image = self.image
+        
+        self.image = self.originImage
         self.imageView.addSubview(self.grayView)
         self.imageView.addSubview(self.cutResizableView)
         self.view.addSubview(self.imageView)
@@ -463,7 +469,6 @@ class EditImageViewController: BaseViewController {
     // 重置按钮点击
     func cutResetButtonClicked(sender: UIButton) -> Void {
         self.image = self.originImage
-        self.imageView.image = image
         self.cutRatioSelectionView.itemSelect(atIndex: 0)
         self.cutRatioSelectionView.itemSelect(atIndex: self.cutRatioSelectionView.selectIndex)
         self.cutResetButton.isEnabled = false
@@ -474,7 +479,6 @@ class EditImageViewController: BaseViewController {
         
         let cutImage = self.image?.clipToRect(rect: self.cutResizableView.frame, inRect: self.imageRectInImageView)
         self.image = cutImage
-        self.imageView.image = cutImage
         self.cutRatioSelectionView.itemSelect(atIndex: self.cutRatioSelectionView.selectIndex)
         self.cutConfirmButton.isEnabled = false
     }

@@ -31,6 +31,10 @@ class RotateCtrlView: UIView {
         return _maskView
     }()
     
+    //  结束执行块
+    var dismissCompletation: ((UIImage) -> (Void))?
+    
+    /// 原始图片
     var originImage: UIImage? {
         didSet {
             self.imageView.image = originImage
@@ -38,14 +42,18 @@ class RotateCtrlView: UIView {
         }
     }
     
+    /// 编辑后的图片
     var image: UIImage? {
         didSet {
             self.imageView.image = image
         }
     }
     
+    
+    /// 旋转角度
     var rotation: CGFloat = 0.0
     
+    /// 上一次拖动的位置
     lazy var lastPosition = CGPoint.zero
     
     override init(frame: CGRect) {
@@ -54,6 +62,7 @@ class RotateCtrlView: UIView {
         self.addSubview(self.bgView)
         self.bgView.addSubview(self.imageView)
         self.addSubview(self.clearMaskView)
+        
         // 拖动手势
         let panGesture = UIPanGestureRecognizer(target: self, action: #selector(panImage(gesture:)))
         self.bgView.addGestureRecognizer(panGesture)
@@ -70,9 +79,26 @@ class RotateCtrlView: UIView {
         fatalError("init(coder:) has not been implemented")
     }
     
+    override func removeFromSuperview() {
+        
+        assert(self.image?.cgImage != nil, "图片丢失")
+        // 生成剪切后的图片
+        if let cgImage = self.newTransformedImage(transform: self.imageView.transform,
+                                                  sourceImage: (self.image?.cgImage)!,
+                                                  imageSize: (self.image?.size)!) {
+            self.image = UIImage(cgImage: cgImage)
+        }
+        if let dismissCompletation = self.dismissCompletation {
+            dismissCompletation(self.image!)
+            self.imageView.transform = .identity
+        }
+    }
+    
+    
+    // MARK: Action Events
+    
     // 拖动手势响应
     func panImage(gesture: UIPanGestureRecognizer) -> Void {
-        
         if gesture.state == .changed {
             let origin = CGPoint(x: self.bgView.frame.size.width/2, y: self.bgView.frame.size.height/2)
             
@@ -103,16 +129,27 @@ class RotateCtrlView: UIView {
         else if gesture.state == .ended || gesture.state == .cancelled {
             
             // 裁剪区域放到最大
-            UIView.animate(withDuration: 0.3, animations: {
-                let scale = self.imageViewScale()
-                self.imageView.transform = self.imageView.transform.scaledBy(x: scale, y: scale)
-                self.clearMaskView.frame = self.imageView.bounds
-                self.clearMaskView.center = self.imageView.center
-                self.clearMaskView.clearFrame = self.imageView.bounds
-            })
+            self.enlargeWhenTouchUp()
         }
         lastPosition = gesture.location(in: self.bgView)
     }
+    
+    override func touchesBegan(_ touches: Set<UITouch>, with event: UIEvent?) {
+        UIView.animate(withDuration: 0.3, animations: { 
+            self.imageView.transform = CGAffineTransform(rotationAngle: self.rotation)
+            self.clearMaskView.frame = self.imageView.bounds
+            self.clearMaskView.center = self.imageView.center
+            self.clearMaskView.clearFrame = self.caculateCutRect()
+        })
+    }
+    
+    override func touchesEnded(_ touches: Set<UITouch>, with event: UIEvent?) {
+        // 裁剪区域放到最大
+       self.enlargeWhenTouchUp()
+    }
+    
+    
+    // MARK: Private Method
     
     // 计算剪切区域
     func caculateCutRect() -> CGRect {
@@ -134,17 +171,8 @@ class RotateCtrlView: UIView {
         return scale
     }
     
-    override func touchesBegan(_ touches: Set<UITouch>, with event: UIEvent?) {
-        UIView.animate(withDuration: 0.3, animations: { 
-            self.imageView.transform = CGAffineTransform(rotationAngle: self.rotation)
-            self.clearMaskView.frame = self.imageView.bounds
-            self.clearMaskView.center = self.imageView.center
-            self.clearMaskView.clearFrame = self.caculateCutRect()
-        })
-    }
-    
-    override func touchesEnded(_ touches: Set<UITouch>, with event: UIEvent?) {
-        // 裁剪区域放到最大
+    // 裁剪区域放到最大
+    func enlargeWhenTouchUp() -> Void {
         UIView.animate(withDuration: 0.3, animations: {
             let scale = self.imageViewScale()
             self.imageView.transform = self.imageView.transform.scaledBy(x: scale, y: scale)
@@ -152,5 +180,48 @@ class RotateCtrlView: UIView {
             self.clearMaskView.center = self.imageView.center
             self.clearMaskView.clearFrame = self.imageView.bounds
         })
+    }
+    
+    
+    /// create a new image according to transform and origin image
+    ///
+    /// - Parameters:
+    ///   - transform: the transform after image rotated
+    ///   - sourceImage: sourceImage
+    ///   - imageSize: size of sourceImage
+    /// - Returns: new Image
+    func newTransformedImage(transform: CGAffineTransform,
+                             sourceImage:CGImage,
+                             imageSize: CGSize) -> CGImage? {
+        
+        // 计算旋转后图片的大小
+        let size = CGSize(width: imageSize.width * self.imageViewScale(), height: imageSize.height * self.imageViewScale())
+        
+        // 创建画布
+        let context = CGContext.init(data: nil,
+                                     width: Int(imageSize.width),
+                                     height: Int(imageSize.height),
+                                     bitsPerComponent: sourceImage.bitsPerComponent,
+                                     bytesPerRow: 0,
+                                     space: sourceImage.colorSpace!,
+                                     bitmapInfo: sourceImage.bitmapInfo.rawValue)
+        
+        context?.setFillColor(UIColor.clear.cgColor)
+        context?.fill(CGRect(origin: CGPoint.zero, size: imageSize))
+        
+        // quartz旋转以左上角为中心，so 将画布移到右下角，旋转之后再向上移到原来位置
+        context?.translateBy(x: imageSize.width / 2, y: imageSize.height / 2)
+        context?.concatenate(transform.inverted())
+        context?.translateBy(x: -size.width / 2, y: -size.height / 2)
+        
+        context?.draw(sourceImage, in: CGRect(x: 0,
+                                              y: 0,
+                                              width: size.width,
+                                              height: size.height))
+        
+        let result = context?.makeImage()
+        assert(result != nil, "旋转图片剪切失败")
+        UIGraphicsEndImageContext()
+        return result!
     }
 }
