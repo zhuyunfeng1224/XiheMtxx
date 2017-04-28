@@ -8,7 +8,13 @@
 
 import UIKit
 
+protocol RotateCtrlViewDelegate {
+    func rotateImageChanged() -> Void
+}
+
 class RotateCtrlView: UIView {
+    
+    var delegate: RotateCtrlViewDelegate?
 
     lazy var bgView: UIView = {
         let _bgView = UIView(frame: CGRect(origin: CGPoint.zero, size: self.frame.size))
@@ -49,9 +55,35 @@ class RotateCtrlView: UIView {
         }
     }
     
+    var enlarged: Bool = false {
+        didSet {
+            UIView.animate(withDuration: 0.3) { 
+                let signX = self.scale.width / fabs(self.scale.width)
+                let signY = self.scale.height / fabs(self.scale.height)
+                if self.enlarged {
+                    let scale = self.imageViewScale()
+                    self.scale = CGSize(width: signX * scale, height: signY * scale)
+                    self.newImageTransform()
+                    self.clearMaskView.clearFrame = self.imageView.bounds
+                }
+                else {
+                    self.scale = CGSize(width: signX, height: signY)
+                    self.newImageTransform()
+                    let cutSize = self.imageView.bounds.size.applying(CGAffineTransform(scaleX: 1 / self.imageViewScale(), y: 1 / self.imageViewScale()))
+                    self.clearMaskView.clearFrame = CGRect(x: self.imageView.center.x - cutSize.width/2,
+                                                           y: self.imageView.center.y - cutSize.height/2,
+                                                           width: cutSize.width,
+                                                           height: cutSize.height)
+                }
+            }
+        }
+    }
     
     /// 旋转角度
     var rotation: CGFloat = 0.0
+    
+    /// 缩放倍数
+    var scale: CGSize = CGSize(width: 1, height: 1)
     
     /// 上一次拖动的位置
     lazy var lastPosition = CGPoint.zero
@@ -72,7 +104,8 @@ class RotateCtrlView: UIView {
         super.layoutSubviews()
         self.bgView.frame = CGRect(origin: CGPoint.zero, size: self.frame.size)
         self.imageView.frame = CGRect(origin: CGPoint.zero, size: self.frame.size)
-        self.clearMaskView.frame = CGRect(origin: CGPoint.zero, size: self.frame.size)
+        self.clearMaskView.frame = self.imageView.bounds
+        self.clearMaskView.center = self.imageView.center
     }
     
     required init?(coder aDecoder: NSCoder) {
@@ -81,7 +114,9 @@ class RotateCtrlView: UIView {
     
     override func removeFromSuperview() {
         
-        assert(self.image?.cgImage != nil, "图片丢失")
+        if self.image == nil {
+            return
+        }
         // 生成剪切后的图片
         if let cgImage = self.newTransformedImage(transform: self.imageView.transform,
                                                   sourceImage: (self.image?.cgImage)!,
@@ -90,6 +125,8 @@ class RotateCtrlView: UIView {
         }
         if let dismissCompletation = self.dismissCompletation {
             dismissCompletation(self.image!)
+            self.rotation = 0
+            self.scale = CGSize(width: 1, height: 1)
             self.imageView.transform = .identity
         }
     }
@@ -117,45 +154,69 @@ class RotateCtrlView: UIView {
             let angle = acos(pointMuti / (modA * modB))
             
             // 叉乘求旋转方向，顺时针还是逆时针
+            let signX = Float(self.scale.width / fabs(self.scale.width))
+            let signY = Float(self.scale.height / fabs(self.scale.height))
             let crossAB = vectorA.x * vectorB.y - vectorA.y * vectorB.x
             let sign: Float = crossAB > 0.0 ? 1.0: -1.0
             
             if !angle.isNaN && angle != 0.0 {
-                rotation += CGFloat(angle * sign)
-                self.imageView.transform = CGAffineTransform(rotationAngle: rotation)
+                self.rotation += CGFloat(angle * sign * signX * signY)
+                self.newImageTransform()
                 self.clearMaskView.clearFrame = self.caculateCutRect()
             }
         }
         else if gesture.state == .ended || gesture.state == .cancelled {
-            
-            // 裁剪区域放到最大
-            self.enlargeWhenTouchUp()
+            // 取消放大
+            self.enlarged = true
         }
         lastPosition = gesture.location(in: self.bgView)
     }
     
     override func touchesBegan(_ touches: Set<UITouch>, with event: UIEvent?) {
-        UIView.animate(withDuration: 0.3, animations: { 
-            self.imageView.transform = CGAffineTransform(rotationAngle: self.rotation)
-            self.clearMaskView.frame = self.imageView.bounds
-            self.clearMaskView.center = self.imageView.center
-            self.clearMaskView.clearFrame = self.caculateCutRect()
-        })
+        // 点击缩小
+        if self.enlarged == true {
+            self.enlarged = false
+        }
     }
     
     override func touchesEnded(_ touches: Set<UITouch>, with event: UIEvent?) {
-        // 裁剪区域放到最大
-       self.enlargeWhenTouchUp()
+        // 取消放大
+        self.enlarged = true
     }
     
+    func rotateReset() -> Void {
+        self.rotation = 0
+        self.scale = CGSize(width: 1, height: 1)
+        self.imageView.transform = .identity
+        self.image = self.originImage
+    }
+    
+    func rotateLeft() -> Void {
+        self.rotation += CGFloat(-Float.pi/2)
+        self.newImageTransform()
+    }
+    
+    func rotateRight() -> Void {
+        self.rotation += CGFloat(Float.pi/2)
+        self.newImageTransform()
+    }
+    
+    func rotateHorizontalMirror() -> Void {
+        self.scale = CGSize(width: self.scale.width * -1, height: self.scale.height)
+        self.newImageTransform()
+    }
+    
+    func rotateVerticalnMirror() -> Void {
+        self.scale = CGSize(width: self.scale.width, height: self.scale.height * -1)
+        self.newImageTransform()
+    }
     
     // MARK: Private Method
     
     // 计算剪切区域
     func caculateCutRect() -> CGRect {
-        let scale = self.imageViewScale()
-        
-        let cutSize = self.imageView.bounds.size.applying(CGAffineTransform(scaleX: 1/scale, y: 1/scale))
+        let scale = self.enlarged ? self.imageViewScale() : 1 / self.imageViewScale()
+        let cutSize = self.imageView.bounds.size.applying(CGAffineTransform(scaleX: scale, y: scale))
         let cutFrame = CGRect(x: self.imageView.center.x - cutSize.width/2,
                               y: self.imageView.center.y - cutSize.height/2,
                               width: cutSize.width,
@@ -165,23 +226,21 @@ class RotateCtrlView: UIView {
     
     // 旋转之后图片放大的倍数
     func imageViewScale() -> CGFloat {
-        let scaleX = self.imageView.frame.size.width/self.imageView.bounds.size.width
-        let scaleY = self.imageView.frame.size.height/self.imageView.bounds.size.height
+        let scaleX = self.imageView.frame.size.width / self.imageView.bounds.size.width
+        let scaleY = self.imageView.frame.size.height / self.imageView.bounds.size.height
         let scale = fabsf(Float(scaleX)) > fabsf(Float(scaleY)) ? scaleX : scaleY
         return scale
     }
     
-    // 裁剪区域放到最大
-    func enlargeWhenTouchUp() -> Void {
-        UIView.animate(withDuration: 0.3, animations: {
-            let scale = self.imageViewScale()
-            self.imageView.transform = self.imageView.transform.scaledBy(x: scale, y: scale)
-            self.clearMaskView.frame = self.imageView.bounds
-            self.clearMaskView.center = self.imageView.center
-            self.clearMaskView.clearFrame = self.imageView.bounds
-        })
+    func newImageTransform() -> Void {
+        let transform = CGAffineTransform(rotationAngle: self.rotation)
+        let scaleTransform = CGAffineTransform(scaleX: self.scale.width, y: self.scale.height)
+        self.imageView.transform = transform.concatenating(scaleTransform)
+        
+        if self.delegate != nil {
+            self.delegate?.rotateImageChanged()
+        }
     }
-    
     
     /// create a new image according to transform and origin image
     ///

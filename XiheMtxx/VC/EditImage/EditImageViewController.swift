@@ -25,7 +25,7 @@ class EditImageViewController: BaseViewController {
     
     // 图片
     lazy var imageView: UIImageView = {
-        let _imageView = UIImageView(frame: CGRect(x: 0, y: 0, width: UIScreen.main.bounds.size.width, height: UIScreen.main.bounds.size.height * self.imageAndScreenHeightRatio))
+        let _imageView = UIImageView(frame: CGRect.zero)
         _imageView.isUserInteractionEnabled = true
         _imageView.contentMode = .scaleAspectFit
         _imageView.backgroundColor = UIColor.colorWithHexString(hex: "#3c3c3c")
@@ -34,7 +34,7 @@ class EditImageViewController: BaseViewController {
     
     // 遮罩层
     lazy var grayView: GrayView = {
-        let _grayView = GrayView(frame: CGRect(x: 0, y: 0, width: UIScreen.main.bounds.size.width, height: UIScreen.main.bounds.size.height * self.imageAndScreenHeightRatio))
+        let _grayView = GrayView(frame: CGRect.zero)
         return _grayView
     }()
     
@@ -111,8 +111,9 @@ class EditImageViewController: BaseViewController {
     
     // 旋转图片展示View
     lazy var rotateCtrlView: RotateCtrlView = {
-        let _rotateCtrlView = RotateCtrlView(frame: CGRect(x: 0, y: 0, width: UIScreen.main.bounds.size.width, height: UIScreen.main.bounds.size.height * self.imageAndScreenHeightRatio))
+        let _rotateCtrlView = RotateCtrlView(frame: CGRect.zero)
         _rotateCtrlView.alpha = 0
+        _rotateCtrlView.delegate = self
         _rotateCtrlView.dismissCompletation = { image in
             self.image = image
         }
@@ -172,7 +173,7 @@ class EditImageViewController: BaseViewController {
             .setImage(UIImage(named:"icon_meihua_edit_rotate_horizontal_normal_30x30_"), for: .normal)
         _rotateHorizontalButton
             .setImage(UIImage(named:"icon_meihua_edit_rotate_horizontal_highlighted_30x30_"), for: .highlighted)
-        _rotateHorizontalButton.addTarget(self, action: #selector(rotateRightButtonClicked(sender:)), for: .touchUpInside)
+        _rotateHorizontalButton.addTarget(self, action: #selector(rotateHorizontalButtonClicked(sender:)), for: .touchUpInside)
         _rotateHorizontalButton.translatesAutoresizingMaskIntoConstraints = false
         return _rotateHorizontalButton
     }()
@@ -184,10 +185,11 @@ class EditImageViewController: BaseViewController {
             .setImage(UIImage(named:"icon_meihua_edit_rotate_vertical_normal_30x30_"), for: .normal)
         _rotateVerticalButton
             .setImage(UIImage(named:"icon_meihua_edit_rotate_vertical_highlighted_30x30_"), for: .highlighted)
-        _rotateVerticalButton.addTarget(self, action: #selector(rotateRightButtonClicked(sender:)), for: .touchUpInside)
+        _rotateVerticalButton.addTarget(self, action: #selector(rotateVerticalButtonClicked(sender:)), for: .touchUpInside)
         _rotateVerticalButton.translatesAutoresizingMaskIntoConstraints = false
         return _rotateVerticalButton
     }()
+    
     
     // MARK: - Menu
     
@@ -303,7 +305,6 @@ class EditImageViewController: BaseViewController {
         self.rotateOperationView.addSubview(self.rotateVerticalButton)
         
         self.view.setNeedsUpdateConstraints()
-        
         self.cutResizableView.addObserver(self, forKeyPath: "frame", options: .new, context: nil)
     }
     
@@ -402,6 +403,18 @@ class EditImageViewController: BaseViewController {
         self.menuBar.addConstraints(cutMenuButtonVConstraints)
         self.menuBar.addConstraints(rotateMenuButtonVConstraints)
     }
+    
+    override func viewDidLayoutSubviews() {
+        super.viewDidLayoutSubviews()
+        let rect = CGRect(x: 0,
+                          y: 0,
+                          width: UIScreen.main.bounds.size.width,
+                          height: UIScreen.main.bounds.size.height * self.imageAndScreenHeightRatio)
+        self.imageView.frame = rect
+        self.grayView.frame = rect
+        self.grayView.clearFrame = self.cutResizableView.frame
+        self.rotateCtrlView.frame = rect
+    }
 
     override func didReceiveMemoryWarning() {
         super.didReceiveMemoryWarning()
@@ -429,7 +442,7 @@ class EditImageViewController: BaseViewController {
         self.rotateMenuButton.isSelected = false
         self.cutResizableView.isHidden = false
         self.grayView.clearFrame = self.cutResizableView.frame
-        
+        self.view.setNeedsLayout()
         
         UIView.animate(withDuration: 0.2, animations: { 
             self.cutOperationView.alpha = 1
@@ -449,10 +462,12 @@ class EditImageViewController: BaseViewController {
         self.rotateMenuButton.isSelected = true
         self.cutMenuButton.isSelected = false
         self.cutResizableView.isHidden = true
-        self.grayView.clearFrame = self.imageRectInImageView
+//        self.grayView.frame = self.imageRectInImageView
+//        self.grayView.clearFrame = self.imageRectInImageView
         self.view.addSubview(self.rotateCtrlView)
-        self.rotateCtrlView.frame = self.imageRectInImageView
+//        self.rotateCtrlView.frame = self.imageRectInImageView
         self.rotateCtrlView.originImage = self.image
+        self.view.setNeedsLayout()
         
         UIView.animate(withDuration: 0.2, animations: {
             self.rotateCtrlView.alpha = 1
@@ -472,6 +487,7 @@ class EditImageViewController: BaseViewController {
         self.cutRatioSelectionView.itemSelect(atIndex: 0)
         self.cutRatioSelectionView.itemSelect(atIndex: self.cutRatioSelectionView.selectIndex)
         self.cutResetButton.isEnabled = false
+        self.view.setNeedsLayout()
     }
     
     // 裁剪按钮点击
@@ -481,31 +497,34 @@ class EditImageViewController: BaseViewController {
         self.image = cutImage
         self.cutRatioSelectionView.itemSelect(atIndex: self.cutRatioSelectionView.selectIndex)
         self.cutConfirmButton.isEnabled = false
+        self.imageRectInImageView = self.cutResizableView.frame
+        self.view.setNeedsLayout()
     }
     
     // 旋转重置按钮
     func rotateResetButtonClicked(sender: UIButton) -> Void {
-        
+        self.rotateCtrlView.rotateReset()
+        self.rotateResetButton.isEnabled = false
     }
     
     // 向左旋转按钮
     func rotateLeftButtonClicked(sender: UIButton) -> Void {
-        
+        self.rotateCtrlView.rotateLeft()
     }
     
     // 向右旋转按钮
     func rotateRightButtonClicked(sender: UIButton) -> Void {
-        
+        self.rotateCtrlView.rotateRight()
     }
     
     // 向右反转按钮
     func rotateHorizontalButtonClicked(sender: UIButton) -> Void {
-        
+        self.rotateCtrlView.rotateHorizontalMirror()
     }
     
     // 向下反转按钮
     func rotateVerticalButtonClicked(sender: UIButton) -> Void {
-        
+        self.rotateCtrlView.rotateVerticalnMirror()
     }
     
     override func observeValue(forKeyPath keyPath: String?, of object: Any?, change: [NSKeyValueChangeKey : Any]?, context: UnsafeMutableRawPointer?) {
@@ -581,5 +600,11 @@ extension EditImageViewController: UserResizableViewDelegate {
     func resizeView() {
         self.cutResetButton.isEnabled = true
         self.cutConfirmButton.isEnabled = true
+    }
+}
+
+extension EditImageViewController: RotateCtrlViewDelegate {
+    func rotateImageChanged() {
+        self.rotateResetButton.isEnabled = true
     }
 }

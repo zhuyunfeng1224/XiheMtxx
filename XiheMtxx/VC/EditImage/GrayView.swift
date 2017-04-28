@@ -12,21 +12,20 @@ class GrayView: UIView {
     
     var clearFrame: CGRect = CGRect.zero {
         didSet {
-           self.setNeedsDisplay()
+            self.clearLayer.clearFrame = self.clearFrame
+            self.clearLayer.setNeedsDisplay()
         }
     }
     
+    var clearLayer = CenterClearLayer()
+    
     override init(frame: CGRect) {
         super.init(frame: frame)
-        self.backgroundColor = UIColor.black.withAlphaComponent(0.3)
+        self.clearLayer.frame = self.bounds
+        self.layer.addSublayer(self.clearLayer)
     }
     
     required init?(coder aDecoder: NSCoder) {
         fatalError("init(coder:) has not been implemented")
-    }
-    
-    override func draw(_ rect: CGRect) {
-        let context = UIGraphicsGetCurrentContext()
-        context?.clear(clearFrame)
     }
 }

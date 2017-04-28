@@ -10,8 +10,6 @@ import UIKit
 
 class GridBorderView: UIView {
 
-    // Only override draw() if you perform custom drawing.
-    // An empty implementation adversely affects performance during animation.
     override init(frame: CGRect) {
         super.init(frame: frame)
         self.backgroundColor = UIColor.clear
