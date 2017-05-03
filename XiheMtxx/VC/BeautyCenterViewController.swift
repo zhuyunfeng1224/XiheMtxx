@@ -11,6 +11,7 @@ import UIKit
 class BeautyCenterViewController: BaseViewController {
     
     var originImage: UIImage!
+    var images: [UIImage] = Array()
     
     // 返回按钮
     lazy var backButton: UIButton = {
@@ -74,6 +75,7 @@ class BeautyCenterViewController: BaseViewController {
     // imageView
     lazy var imageView: UIImageView = {
         let _imageView = UIImageView(frame: CGRect(x: 0, y: 100, width: UIScreen.main.bounds.size.width, height: UIScreen.main.bounds.size.width))
+        _imageView.contentMode = .scaleAspectFill
         _imageView.backgroundColor = UIColor.white
         return _imageView
     }()
@@ -124,6 +126,7 @@ class BeautyCenterViewController: BaseViewController {
         self.view.addSubview(self.imageScrollView)
         
         // imageView
+        self.images.append(self.originImage)
         self.imageView.image = self.originImage
         self.imageView.frame = self.rectImageInScrollView()
         self.imageScrollView.addSubview(self.imageView)
@@ -140,7 +143,8 @@ class BeautyCenterViewController: BaseViewController {
     //将图片完整的放进scrollView中，并获取imageView.frame
     func rectImageInScrollView() -> CGRect {
         let imageBounds = self.imageScrollView.frame
-        let imageRatio = self.originImage.size.width / self.originImage.size.height
+        let image = self.images.last
+        let imageRatio = (image?.size.width)! / (image?.size.height)!
         let viewRatio = imageBounds.size.width / imageBounds.size.height
         var size = CGSize.zero
         if imageRatio >= viewRatio {
@@ -185,14 +189,26 @@ class BeautyCenterViewController: BaseViewController {
         }) { (finished) in
             if finished {
                 let editImageVC = EditImageViewController()
-                editImageVC.originImage = self.originImage
+                let image = self.images.last
+                editImageVC.originImage = image
                 editImageVC.modalPresentationStyle = .fullScreen
                 editImageVC.transitioningDelegate = self
+                editImageVC.completation = { image in
+                    self.images.append(image)
+                    self.refreshImage()
+                }
                 self.present(editImageVC, animated: true) {
                     self.toolBar.frame = self.toolBar.frame.offsetBy(dx: 0, dy: -self.toolBar.frame.size.height)
                 }
             }
         }
+    }
+    
+    func refreshImage() -> Void {
+        let image = self.images.last
+        self.imageView.frame = self.rectImageInScrollView()
+        self.imageView.image = image
+        self.imageView.center = self.imageScrollView.center
     }
 }
 

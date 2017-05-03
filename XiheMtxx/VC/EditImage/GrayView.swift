@@ -12,6 +12,7 @@ class GrayView: UIView {
     
     var clearFrame: CGRect = CGRect.zero {
         didSet {
+            self.clearLayer.frame = self.bounds
             self.clearLayer.clearFrame = self.clearFrame
             self.clearLayer.setNeedsDisplay()
         }

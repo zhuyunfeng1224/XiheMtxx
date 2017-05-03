@@ -14,10 +14,14 @@ class CenterClearLayer: CAShapeLayer {
     
     override init() {
         super.init()
-        self.speed = 2
+        self.speed = 3
         self.fillRule = kCAFillRuleEvenOdd
         let color = UIColor(colorLiteralRed: 0, green: 0, blue: 0, alpha: 0.3).cgColor
         self.fillColor = color
+    }
+    
+    override init(layer: Any) {
+        super.init(layer: layer)
     }
     
     required init?(coder aDecoder: NSCoder) {
@@ -31,12 +35,5 @@ class CenterClearLayer: CAShapeLayer {
         path.addRect(self.bounds)
         path.addRect(self.clearFrame)
         self.path = path
-        
-//        let animation = CABasicAnimation(keyPath: "transform.scale")
-//        animation.duration = 0.3
-//        animation.fromValue = self.bounds.size.width / self.clearFrame.size.width
-//        animation.toValue = 1
-        
-//        self.add(animation, forKey: nil)
     }
 }

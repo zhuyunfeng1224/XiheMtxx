@@ -88,7 +88,12 @@ protocol RatioSelectionViewDelegate: NSObjectProtocol {
 
 class RatioSelectionView: UIView {
     
-    var selectIndex: Int = 0
+    var selectIndex: Int = 0 {
+        didSet {
+            self.delegate?.ratioSelected(ratioType: RatioType(rawValue: selectIndex)!)
+            self.collectionView.reloadData()
+        }
+    }
     weak var delegate: RatioSelectionViewDelegate?
     
     lazy var collectionView: UICollectionView = {
@@ -113,7 +118,7 @@ class RatioSelectionView: UIView {
             
         }) { (finished) in
             if finished {
-                self.itemSelect(atIndex: 0)
+                self.selectIndex = 0
             }
         }
     }
@@ -160,15 +165,15 @@ extension RatioSelectionView: UICollectionViewDataSource, UICollectionViewDelega
     }
     
     func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
-        self.itemSelect(atIndex: indexPath.row)
+        self.selectIndex = indexPath.row
     }
     
     func itemSelect(sender: UIButton) -> Void {
-        self.itemSelect(atIndex: sender.tag)
+        self.selectIndex = sender.tag
     }
     
-    func itemSelect(atIndex index: Int) -> Void {
-        self.delegate?.ratioSelected(ratioType: RatioType(rawValue: index)!)
-        collectionView.reloadData()
-    }
+//    func itemSelect(atIndex index: Int) -> Void {
+//        self.delegate?.ratioSelected(ratioType: RatioType(rawValue: index)!)
+//        collectionView.reloadData()
+//    }
 }

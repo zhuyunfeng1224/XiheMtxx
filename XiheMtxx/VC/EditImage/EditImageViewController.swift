@@ -9,19 +9,26 @@
 import UIKit
 
 class EditImageViewController: BaseViewController {
+    // 编辑模式
+    enum EditMode {
+        case cut
+        case rotate
+    }
     
+    // 编辑模式
+    var editMode: EditMode = .cut
+    // imageView占屏幕高度的比例
+    let imageAndScreenHeightRatio: CGFloat = 0.7
+    // 底部menuBar高度
+    let menuBarHeight: CGFloat = 50
+    // 初始图片
     var originImage: UIImage?
     var image: UIImage? {
         didSet {
             self.imageView.image = image
         }
     }
-    // imageView占屏幕高度的比例
-    let imageAndScreenHeightRatio: CGFloat = 0.7
-    // 底部menuBar高度
-    let menuBarHeight: CGFloat = 50
-    // 图片在ImageView中的位置
-    var imageRectInImageView: CGRect = CGRect.zero
+    var completation:((UIImage)->())?
     
     // 图片
     lazy var imageView: UIImageView = {
@@ -112,6 +119,7 @@ class EditImageViewController: BaseViewController {
     // 旋转图片展示View
     lazy var rotateCtrlView: RotateCtrlView = {
         let _rotateCtrlView = RotateCtrlView(frame: CGRect.zero)
+        _rotateCtrlView.isHidden = true
         _rotateCtrlView.alpha = 0
         _rotateCtrlView.delegate = self
         _rotateCtrlView.dismissCompletation = { image in
@@ -278,11 +286,18 @@ class EditImageViewController: BaseViewController {
         super.viewDidLoad()
         
         self.view.backgroundColor = UIColor.colorWithHexString(hex: "#2c2e30")
-        
         self.image = self.originImage
-        self.imageView.addSubview(self.grayView)
-        self.imageView.addSubview(self.cutResizableView)
+        let imageRectToFit = self.imageRectToFit()
+        self.imageView.frame = imageRectToFit
         self.view.addSubview(self.imageView)
+        
+        self.grayView.frame = CGRect(origin: CGPoint.zero, size: imageRectToFit.size)
+        self.imageView.addSubview(self.grayView)
+        
+        self.rotateCtrlView.frame = self.imageRectToFit()
+        self.view.addSubview(self.rotateCtrlView)
+        
+        self.imageView.addSubview(self.cutResizableView)
         
         self.view.addSubview(self.bottomView)
         self.bottomView.addSubview(self.cutOperationView)
@@ -403,21 +418,45 @@ class EditImageViewController: BaseViewController {
         self.menuBar.addConstraints(cutMenuButtonVConstraints)
         self.menuBar.addConstraints(rotateMenuButtonVConstraints)
     }
-    
-    override func viewDidLayoutSubviews() {
-        super.viewDidLayoutSubviews()
-        let rect = CGRect(x: 0,
-                          y: 0,
-                          width: UIScreen.main.bounds.size.width,
-                          height: UIScreen.main.bounds.size.height * self.imageAndScreenHeightRatio)
-        self.imageView.frame = rect
-        self.grayView.frame = rect
-        self.grayView.clearFrame = self.cutResizableView.frame
-        self.rotateCtrlView.frame = rect
-    }
 
     override func didReceiveMemoryWarning() {
         super.didReceiveMemoryWarning()
+    }
+    
+    // MARK: Private Method
+    
+    private func resetImageViewAndSubViews() {
+        self.imageView.frame = self.imageRectToFit()
+        self.grayView.frame = self.imageView.bounds
+        self.rotateCtrlView.frame = self.imageRectToFit()
+        if self.editMode == .rotate {
+            self.grayView.clearFrame = self.imageView.bounds
+        }
+        else {
+            self.cutRatioSelectionView.selectIndex = 0
+            self.grayView.clearFrame = self.cutResizableView.frame
+        }
+    }
+    
+    func imageRectToFit() -> CGRect {
+        
+        let rect = CGRect(x: 0, y: 0, width: UIScreen.main.bounds.size.width, height: UIScreen.main.bounds.size.height * self.imageAndScreenHeightRatio)
+        // 原始图片View的尺寸
+        let originImageScale = (self.image?.size.width)!/(self.image?.size.height)!
+        let imageViewSize = rect.size
+        let imageViewScale = imageViewSize.width/imageViewSize.height
+        var imageSizeInView = imageViewSize
+        
+        // 得出图片在ImageView中的尺寸
+        if imageViewScale <= originImageScale {
+            imageSizeInView = CGSize(width: imageViewSize.width, height: imageViewSize.width / originImageScale)
+        }
+        else {
+            imageSizeInView = CGSize(width: imageViewSize.height * originImageScale, height: imageViewSize.height)
+        }
+        let imageOriginInView = CGPoint(x: (rect.size.width - imageSizeInView.width)/2, y: (rect.size.height - imageSizeInView.height)/2)
+        
+        return CGRect(origin: imageOriginInView, size: imageSizeInView)
     }
     
     // MARK: - Actions
@@ -431,6 +470,13 @@ class EditImageViewController: BaseViewController {
     
     // 确定按钮点击
     func confirmButtonClicked(sender: UIButton) -> Void {
+        
+        if self.editMode == .cut, let completation = self.completation{
+            completation(self.image!)
+        }
+        else if self.editMode == .rotate, let completation = self.completation {
+            completation(self.rotateCtrlView.image!)
+        }
         self.dismiss(animated: true) { 
             
         }
@@ -438,13 +484,15 @@ class EditImageViewController: BaseViewController {
     
     // 裁剪菜单按钮点击
     func cutMenuButtonClicked(sender: UIButton) -> Void {
+        
+        self.editMode = .cut
+        
         self.cutMenuButton.isSelected = true
         self.rotateMenuButton.isSelected = false
-        self.cutResizableView.isHidden = false
-        self.grayView.clearFrame = self.cutResizableView.frame
-        self.view.setNeedsLayout()
+        self.resetImageViewAndSubViews()
         
-        UIView.animate(withDuration: 0.2, animations: { 
+        UIView.animate(withDuration: 0.2, animations: {
+            self.cutResizableView.isHidden = false
             self.cutOperationView.alpha = 1
             self.rotateOperationView.alpha = 0
             self.rotateCtrlView.alpha = 0
@@ -452,24 +500,27 @@ class EditImageViewController: BaseViewController {
             if finished {
                 self.cutOperationView.isHidden = false
                 self.rotateOperationView.isHidden = true
-                self.rotateCtrlView.removeFromSuperview()
+                self.rotateCtrlView.isHidden = true
             }
         }
     }
     
     // 旋转菜单按钮点击
     func rotateMenuButtonClicked(sender: UIButton) -> Void {
+        
+        self.editMode = .rotate
+        
+        self.rotateCtrlView.frame = self.imageRectToFit()
+        
         self.rotateMenuButton.isSelected = true
         self.cutMenuButton.isSelected = false
-        self.cutResizableView.isHidden = true
-//        self.grayView.frame = self.imageRectInImageView
-//        self.grayView.clearFrame = self.imageRectInImageView
-        self.view.addSubview(self.rotateCtrlView)
-//        self.rotateCtrlView.frame = self.imageRectInImageView
+        
         self.rotateCtrlView.originImage = self.image
-        self.view.setNeedsLayout()
+        self.resetImageViewAndSubViews()
         
         UIView.animate(withDuration: 0.2, animations: {
+            self.cutResizableView.isHidden = true
+            self.rotateCtrlView.isHidden = false
             self.rotateCtrlView.alpha = 1
             self.cutOperationView.alpha = 0
             self.rotateOperationView.alpha = 1
@@ -484,21 +535,22 @@ class EditImageViewController: BaseViewController {
     // 重置按钮点击
     func cutResetButtonClicked(sender: UIButton) -> Void {
         self.image = self.originImage
-        self.cutRatioSelectionView.itemSelect(atIndex: 0)
-        self.cutRatioSelectionView.itemSelect(atIndex: self.cutRatioSelectionView.selectIndex)
+        self.cutRatioSelectionView.selectIndex = 0
         self.cutResetButton.isEnabled = false
-        self.view.setNeedsLayout()
+        self.resetImageViewAndSubViews()
     }
     
     // 裁剪按钮点击
     func cutButtonClicked(sender: UIButton) -> Void {
         
-        let cutImage = self.image?.clipToRect(rect: self.cutResizableView.frame, inRect: self.imageRectInImageView)
+        let cutImage = self.image?.clipToRect(rect: self.cutResizableView.frame, inRect: self.imageView.bounds)
         self.image = cutImage
-        self.cutRatioSelectionView.itemSelect(atIndex: self.cutRatioSelectionView.selectIndex)
+        self.imageView.frame = self.imageRectToFit()
+        self.grayView.frame = self.imageView.bounds
+        self.rotateCtrlView.frame = self.imageRectToFit()
+        self.cutRatioSelectionView.selectIndex = self.cutRatioSelectionView.selectIndex
+        self.grayView.clearFrame = self.cutResizableView.frame
         self.cutConfirmButton.isEnabled = false
-        self.imageRectInImageView = self.cutResizableView.frame
-        self.view.setNeedsLayout()
     }
     
     // 旋转重置按钮
@@ -530,15 +582,20 @@ class EditImageViewController: BaseViewController {
     override func observeValue(forKeyPath keyPath: String?, of object: Any?, change: [NSKeyValueChangeKey : Any]?, context: UnsafeMutableRawPointer?) {
         if keyPath == "frame" {
             let frame = change?[NSKeyValueChangeKey.newKey] as! CGRect
-            self.grayView.clearFrame = frame
-            self.cutResizableView.gridBorderView.setNeedsDisplay()
-            
-            // 缩小后的图片像素尺寸
-            let cropPixelFrame = self.image?.convertToPixelRect(fromRect: self.cutResizableView.frame, inRect: self.imageRectInImageView)
-            self.cutResizableView.sizeLabel.text = "\(Int((cropPixelFrame?.size.width)!)) × \(Int((cropPixelFrame?.size.height)!))"
+            if frame != CGRect.zero {
+                self.grayView.clearFrame = frame
+                self.cutResizableView.gridBorderView.setNeedsDisplay()
+                
+                // 缩小后的图片像素尺寸
+                let cropPixelFrame = self.image?.convertToPixelRect(fromRect: self.cutResizableView.frame, inRect: self.imageView.frame)
+                self.cutResizableView.sizeLabel.text = "\(Int((cropPixelFrame?.size.width)!)) × \(Int((cropPixelFrame?.size.height)!))"
+            }
         }
     }
 }
+
+
+// MARK: RatioSelectionViewDelegate
 
 extension EditImageViewController: RatioSelectionViewDelegate {
     func ratioSelected(ratioType: RatioType) {
@@ -552,7 +609,6 @@ extension EditImageViewController: RatioSelectionViewDelegate {
             self.cutRatioSelectionView.selectIndex = ratioType.rawValue
             return
         }
-        self.cutRatioSelectionView.selectIndex = ratioType.rawValue
         self.cutResizableView.setCenterImageHidden(hidden: ratioType != .ratio_free)
         
         // 缩小后的图片像素尺寸
@@ -563,18 +619,7 @@ extension EditImageViewController: RatioSelectionViewDelegate {
         
         // 原始图片View的尺寸
         let originImageScale = (self.image?.size.width)!/(self.image?.size.height)!
-        let imageViewSize = self.imageView.frame.size
-        let imageViewScale = imageViewSize.width/imageViewSize.height
-        var imageSizeInView = imageViewSize
-        
-        // 得出图片在ImageView中的尺寸
-        if imageViewScale <= originImageScale {
-            imageSizeInView = CGSize(width: imageViewSize.width, height: imageViewSize.width / originImageScale)
-        }
-        else {
-            imageSizeInView = CGSize(width: imageViewSize.height * originImageScale, height: imageViewSize.height)
-        }
-        let imageOriginInView = CGPoint(x: (self.imageView.frame.size.width - imageSizeInView.width)/2, y: (self.imageView.frame.size.height - imageSizeInView.height)/2)
+        let imageSizeInView = self.imageRectToFit().size
         
         // 按照比例在View中的大小截取图片
         var imageSizeAfterScaleDown = imageSizeInView
@@ -586,15 +631,16 @@ extension EditImageViewController: RatioSelectionViewDelegate {
         }
         
         // 计算resizeView.frame
-        let newOrigin = CGPoint(x: (self.imageView.frame.size.width - imageSizeAfterScaleDown.width)/2, y: (self.imageView.frame.size.height - imageSizeAfterScaleDown.height)/2)
+        let newOrigin = CGPoint(x: (imageSizeInView.width - imageSizeAfterScaleDown.width)/2, y: (imageSizeInView.height - imageSizeAfterScaleDown.height)/2)
         let resizeFrame = CGRect(origin: newOrigin, size: imageSizeAfterScaleDown)
         
-        self.imageRectInImageView = CGRect(origin: imageOriginInView, size: imageSizeInView)
-        self.cutResizableView.imageBounds = self.imageRectInImageView
-        
+        self.cutResizableView.imageBounds = CGRect(origin: CGPoint.zero, size: imageSizeInView)
         self.cutResizableView.frame = resizeFrame
     }
 }
+
+
+// MARK: UserResizableViewDelegate
 
 extension EditImageViewController: UserResizableViewDelegate {
     func resizeView() {
@@ -602,6 +648,9 @@ extension EditImageViewController: UserResizableViewDelegate {
         self.cutConfirmButton.isEnabled = true
     }
 }
+
+
+// MARK: RotateCtrlViewDelegate
 
 extension EditImageViewController: RotateCtrlViewDelegate {
     func rotateImageChanged() {

@@ -112,22 +112,25 @@ class RotateCtrlView: UIView {
         fatalError("init(coder:) has not been implemented")
     }
     
-    override func removeFromSuperview() {
-        
-        if self.image == nil {
-            return
-        }
-        // 生成剪切后的图片
-        if let cgImage = self.newTransformedImage(transform: self.imageView.transform,
-                                                  sourceImage: (self.image?.cgImage)!,
-                                                  imageSize: (self.image?.size)!) {
-            self.image = UIImage(cgImage: cgImage)
-        }
-        if let dismissCompletation = self.dismissCompletation {
-            dismissCompletation(self.image!)
-            self.rotation = 0
-            self.scale = CGSize(width: 1, height: 1)
-            self.imageView.transform = .identity
+    override var isHidden: Bool {
+        didSet {
+            if isHidden == true {
+                if self.image == nil {
+                    return
+                }
+                // 生成剪切后的图片
+                if let cgImage = self.newTransformedImage(transform: self.imageView.transform,
+                                                          sourceImage: (self.image?.cgImage)!,
+                                                          imageSize: (self.image?.size)!) {
+                    self.image = UIImage(cgImage: cgImage)
+                }
+                if let dismissCompletation = self.dismissCompletation {
+                    dismissCompletation(self.image!)
+                    self.rotation = 0
+                    self.scale = CGSize(width: 1, height: 1)
+                    self.imageView.transform = .identity
+                }
+            }
         }
     }
     
@@ -187,28 +190,38 @@ class RotateCtrlView: UIView {
     func rotateReset() -> Void {
         self.rotation = 0
         self.scale = CGSize(width: 1, height: 1)
-        self.imageView.transform = .identity
         self.image = self.originImage
+        UIView.animate(withDuration: 0.3) {
+            self.imageView.transform = .identity
+        }
     }
     
     func rotateLeft() -> Void {
-        self.rotation += CGFloat(-Float.pi/2)
-        self.newImageTransform()
+        self.rotation += CGFloat(-Float.pi / 2)
+        UIView.animate(withDuration: 0.3) {
+            self.newImageTransform()
+        }
     }
     
     func rotateRight() -> Void {
-        self.rotation += CGFloat(Float.pi/2)
-        self.newImageTransform()
+        self.rotation += CGFloat(Float.pi / 2)
+        UIView.animate(withDuration: 0.3) {
+            self.newImageTransform()
+        }
     }
     
     func rotateHorizontalMirror() -> Void {
         self.scale = CGSize(width: self.scale.width * -1, height: self.scale.height)
-        self.newImageTransform()
+        UIView.animate(withDuration: 0.3) {
+            self.newImageTransform()
+        }
     }
     
     func rotateVerticalnMirror() -> Void {
         self.scale = CGSize(width: self.scale.width, height: self.scale.height * -1)
-        self.newImageTransform()
+        UIView.animate(withDuration: 0.3) {
+            self.newImageTransform()
+        }
     }
     
     // MARK: Private Method
