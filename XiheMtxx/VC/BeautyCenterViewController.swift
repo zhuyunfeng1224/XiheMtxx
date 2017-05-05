@@ -68,13 +68,23 @@ class BeautyCenterViewController: BaseViewController {
         _imageScrollView.alwaysBounceVertical = true
         _imageScrollView.alwaysBounceHorizontal = true
         _imageScrollView.maximumZoomScale = 4.0
+        _imageScrollView.minimumZoomScale = 1.0
         _imageScrollView.delegate = self
+        _imageScrollView.pinchGestureRecognizer?.addTarget(self, action: #selector(zoomImage(gesture:)))
         return _imageScrollView
+    }()
+    
+    // imageBgView
+    lazy var imageBgView: UIView = {
+        let _imageBgView = UIView(frame: CGRect.zero)
+        _imageBgView.backgroundColor = UIColor.clear
+        _imageBgView.layer.anchorPoint = CGPoint(x: 0.5, y: 0.5)
+        return _imageBgView
     }()
     
     // imageView
     lazy var imageView: UIImageView = {
-        let _imageView = UIImageView(frame: CGRect(x: 0, y: 100, width: UIScreen.main.bounds.size.width, height: UIScreen.main.bounds.size.width))
+        let _imageView = UIImageView(frame: CGRect.zero)
         _imageView.contentMode = .scaleAspectFill
         _imageView.backgroundColor = UIColor.white
         return _imageView
@@ -128,8 +138,11 @@ class BeautyCenterViewController: BaseViewController {
         // imageView
         self.images.append(self.originImage)
         self.imageView.image = self.originImage
-        self.imageView.frame = self.rectImageInScrollView()
-        self.imageScrollView.addSubview(self.imageView)
+        self.imageView.frame = CGRect(origin: CGPoint.zero, size: self.rectImageInScrollView().size)
+        self.imageBgView.frame = self.rectImageInScrollView()
+        self.imageBgView.addSubview(self.imageView)
+        
+        self.imageScrollView.addSubview(self.imageBgView)
         
         self.view.addSubview(self.toolBar)
     }
@@ -206,14 +219,27 @@ class BeautyCenterViewController: BaseViewController {
     
     func refreshImage() -> Void {
         let image = self.images.last
-        self.imageView.frame = self.rectImageInScrollView()
+        self.imageScrollView.setZoomScale(1, animated: false)
+        self.imageBgView.frame = self.rectImageInScrollView()
+        self.imageView.frame = CGRect(origin: CGPoint.zero, size: self.rectImageInScrollView().size)
         self.imageView.image = image
-        self.imageView.center = self.imageScrollView.center
+    }
+    
+    func zoomImage(gesture: UIPinchGestureRecognizer) -> Void {
+        var dw = (self.imageScrollView.frame.size.width - self.imageBgView.frame.size.width) / 2
+        var dh = (self.imageScrollView.frame.size.height - self.imageBgView.frame.size.height) / 2
+        if dw < 0 {
+            dw = 0
+        }
+        if dh < 0 {
+            dh = 0
+        }
+        self.imageBgView.frame = CGRect(origin: CGPoint(x: dw, y: dh), size: self.imageBgView.frame.size)
     }
 }
 
 extension BeautyCenterViewController: UIScrollViewDelegate {
     func viewForZooming(in scrollView: UIScrollView) -> UIView? {
-        return self.imageView
+        return self.imageBgView
     }
 }

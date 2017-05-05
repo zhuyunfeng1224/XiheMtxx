@@ -247,7 +247,7 @@ class UserResizableView: UIView {
         self.frame = CGRect(origin: origin, size: size)
         sender.setTranslation(CGPoint.zero, in: self)
         
-        if sender.state == .ended {
+        if sender.state == .ended || sender.state == .changed {
             self.delegate?.resizeView()
         }
         
@@ -310,7 +310,7 @@ class UserResizableView: UIView {
         
         self.frame = CGRect(origin: origin, size: size)
         sender.setTranslation(CGPoint.zero, in: self)
-        if sender.state == .ended {
+        if sender.state == .ended || sender.state == .changed {
             self.delegate?.resizeView()
         }
     }
@@ -372,7 +372,7 @@ class UserResizableView: UIView {
         
         self.frame = CGRect(origin: origin, size: size)
         sender.setTranslation(CGPoint.zero, in: self)
-        if sender.state == .ended {
+        if sender.state == .ended || sender.state == .changed {
             self.delegate?.resizeView()
         }
     }
@@ -431,7 +431,7 @@ class UserResizableView: UIView {
         
         self.frame = CGRect(origin: origin, size: size)
         sender.setTranslation(CGPoint.zero, in: self)
-        if sender.state == .ended {
+        if sender.state == .ended || sender.state == .changed {
             self.delegate?.resizeView()
         }
     }
@@ -488,7 +488,7 @@ class UserResizableView: UIView {
         
         self.frame = CGRect(origin: origin, size: size)
         sender.setTranslation(CGPoint.zero, in: self)
-        if sender.state == .ended {
+        if sender.state == .ended || sender.state == .changed {
             self.delegate?.resizeView()
         }
     }
@@ -507,7 +507,7 @@ class UserResizableView: UIView {
         
         self.frame = CGRect(origin: origin, size: size)
         sender.setTranslation(CGPoint.zero, in: self)
-        if sender.state == .ended {
+        if sender.state == .ended || sender.state == .changed {
             self.delegate?.resizeView()
         }
     }
@@ -526,7 +526,7 @@ class UserResizableView: UIView {
         self.frame = CGRect(origin: origin, size: size)
         sender.setTranslation(CGPoint.zero, in: self)
         
-        if sender.state == .ended {
+        if sender.state == .ended || sender.state == .changed {
             self.delegate?.resizeView()
         }
     }
@@ -546,7 +546,7 @@ class UserResizableView: UIView {
         self.frame = CGRect(origin: origin, size: size)
         sender.setTranslation(CGPoint.zero, in: self)
         
-        if sender.state == .ended {
+        if sender.state == .ended || sender.state == .changed {
             self.delegate?.resizeView()
         }
     }
@@ -565,7 +565,7 @@ class UserResizableView: UIView {
         self.frame = CGRect(origin: origin, size: size)
         sender.setTranslation(CGPoint.zero, in: self)
         
-        if sender.state == .ended {
+        if sender.state == .ended || sender.state == .changed {
             self.delegate?.resizeView()
         }
     }

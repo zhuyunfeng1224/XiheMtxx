@@ -93,19 +93,11 @@ class RotateCtrlView: UIView {
         self.isUserInteractionEnabled = true
         self.addSubview(self.bgView)
         self.bgView.addSubview(self.imageView)
-        self.addSubview(self.clearMaskView)
+        self.bgView.addSubview(self.clearMaskView)
         
         // 拖动手势
         let panGesture = UIPanGestureRecognizer(target: self, action: #selector(panImage(gesture:)))
         self.bgView.addGestureRecognizer(panGesture)
-    }
-    
-    override func layoutSubviews() {
-        super.layoutSubviews()
-        self.bgView.frame = CGRect(origin: CGPoint.zero, size: self.frame.size)
-        self.imageView.frame = CGRect(origin: CGPoint.zero, size: self.frame.size)
-        self.clearMaskView.frame = self.imageView.bounds
-        self.clearMaskView.center = self.imageView.center
     }
     
     required init?(coder aDecoder: NSCoder) {
@@ -115,25 +107,28 @@ class RotateCtrlView: UIView {
     override var isHidden: Bool {
         didSet {
             if isHidden == true {
-                if self.image == nil {
-                    return
-                }
-                // 生成剪切后的图片
-                if let cgImage = self.newTransformedImage(transform: self.imageView.transform,
-                                                          sourceImage: (self.image?.cgImage)!,
-                                                          imageSize: (self.image?.size)!) {
-                    self.image = UIImage(cgImage: cgImage)
-                }
-                if let dismissCompletation = self.dismissCompletation {
-                    dismissCompletation(self.image!)
-                    self.rotation = 0
-                    self.scale = CGSize(width: 1, height: 1)
-                    self.imageView.transform = .identity
-                }
+                self.generateNewTransformImage()
             }
         }
     }
     
+    func generateNewTransformImage() -> Void {
+        if self.image == nil {
+            return
+        }
+        // 生成剪切后的图片
+        if let cgImage = self.newTransformedImage(transform: self.imageView.transform,
+                                                  sourceImage: (self.image?.cgImage)!,
+                                                  imageSize: (self.image?.size)!) {
+            self.image = UIImage(cgImage: cgImage)
+        }
+        if let dismissCompletation = self.dismissCompletation {
+            dismissCompletation(self.image!)
+            self.rotation = 0
+            self.scale = CGSize(width: 1, height: 1)
+            self.imageView.transform = .identity
+        }
+    }
     
     // MARK: Action Events
     
@@ -224,6 +219,14 @@ class RotateCtrlView: UIView {
         }
     }
     
+    func resetLayoutOfSubviews() -> Void {
+        let rect = self.imageRectToFit()
+        self.bgView.frame = rect
+        self.imageView.frame = self.bgView.bounds
+        self.clearMaskView.frame = self.bgView.bounds
+        self.clearMaskView.center = self.imageView.center
+    }
+    
     // MARK: Private Method
     
     // 计算剪切区域
@@ -295,5 +298,26 @@ class RotateCtrlView: UIView {
         assert(result != nil, "旋转图片剪切失败")
         UIGraphicsEndImageContext()
         return result!
+    }
+    
+    func imageRectToFit() -> CGRect {
+        
+        let rect = self.frame
+        // 原始图片View的尺寸
+        let originImageScale = (self.image?.size.width)!/(self.image?.size.height)!
+        let imageViewSize = rect.size
+        let imageViewScale = imageViewSize.width/imageViewSize.height
+        var imageSizeInView = imageViewSize
+        
+        // 得出图片在ImageView中的尺寸
+        if imageViewScale <= originImageScale {
+            imageSizeInView = CGSize(width: imageViewSize.width, height: imageViewSize.width / originImageScale)
+        }
+        else {
+            imageSizeInView = CGSize(width: imageViewSize.height * originImageScale, height: imageViewSize.height)
+        }
+        let imageOriginInView = CGPoint(x: (rect.size.width - imageSizeInView.width)/2, y: (rect.size.height - imageSizeInView.height)/2)
+        
+        return CGRect(origin: imageOriginInView, size: imageSizeInView)
     }
 }

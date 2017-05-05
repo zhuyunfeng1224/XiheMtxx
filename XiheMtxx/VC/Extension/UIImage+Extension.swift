@@ -77,30 +77,6 @@ extension UIImage {
         return imageCopy!
     }
     
-    // 剪切图片
-    func clipToRect(rect: CGRect, inRect: CGRect) -> UIImage {
-        
-        // 剪切图片
-        let cropPixelFrame = self.convertToPixelRect(fromRect: rect, inRect: inRect)
-        let cropImageSize = cropPixelFrame.size
-        let imgRef = self.cgImage?.cropping(to: cropPixelFrame)
-        
-        // 使用UIKit方法绘制图片，防止图片倒置
-        UIGraphicsBeginImageContext(cropImageSize)
-        let context = UIGraphicsGetCurrentContext()
-        
-        // 翻转坐标系
-        context?.translateBy(x: 0, y: cropImageSize.height)
-        context?.scaleBy(x: 1.0, y: -1.0)
-        
-        // 画图片，并从context中取出
-        context?.draw(imgRef!, in:  CGRect(origin: CGPoint.zero, size: cropImageSize))
-        let finalImage = UIGraphicsGetImageFromCurrentImageContext()
-        UIGraphicsEndImageContext()
-        
-        return finalImage!
-    }
-    
     func convertToPixelRect(fromRect rect: CGRect, inRect: CGRect) -> CGRect {
         let w = round(rect.size.width/inRect.size.width * self.size.width)
         let h = round(rect.size.height/inRect.size.height * self.size.height)
